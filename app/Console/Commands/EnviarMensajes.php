@@ -104,7 +104,7 @@ class EnviarMensajes extends Command
                     }
 
                     VerificarEnvioMensajes::dispatch($cabecera->id)
-                    ->delay(now()->addSeconds(10));
+                    ->delay(now()->addMinutes(5));
                 }
             }
         }
