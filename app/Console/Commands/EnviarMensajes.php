@@ -90,8 +90,8 @@ class EnviarMensajes extends Command
                             $response = $client->post($url);
                             $res = json_decode($response->getBody());
                             if (!empty($res)) {
-                                log::info($res->menssage);
-                                if($res->message == 'success'){
+                                log::info($res->message);
+                                if(!empty($res->id)){
                                     $detalle['idenvio'] = $res->id;
                                     $detalle['enviado'] = 3; //despachado para envio
                                     $detalle['intentos'] += 1;

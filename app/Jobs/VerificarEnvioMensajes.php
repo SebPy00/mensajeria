@@ -65,7 +65,6 @@ class VerificarEnvioMensajes implements ShouldQueue
                         }else{
                             $d->enviado= 2;
                             $d->save();
-
                             $errorEnvio = 1;
                         }
                     }
@@ -77,26 +76,30 @@ class VerificarEnvioMensajes implements ShouldQueue
         }
 
         log::info('CAMBIAR ESTADO DEL LOTE');
+        //obtenemos datos de la cabecera
         $cab = EnvioMensajes::where('id', $this->id)->first();
-        // $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
-        // if(empty($noenviado)){
-        //     log:info('entra');
-        //     $cab->idestado = 3;
-        //     $cab->save();
-        // }else{
-        //     $cab->idestado = 1;
-        //     $cab->save();
-        // }
+        
+        //si no encontró errores
         if( $verificar == 0 && $errorEnvio == 0){
-            $cab->idestado = 3;
-            $cab->save();
+            //verificamos que no hayan mensajes sin enviar
+            $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
+            if(empty($noenviado)){
+                log:info('no tiene mensajes sin enviar');
+                $cab->idestado = 3; // pasa a estado procesado - cabecera
+                $cab->save();
+            }else{
+                $cab->idestado = 1; // pasa a pendiente
+                $cab->save();
+            }
         }else {
             if ($errorEnvio == 1) {
-                $cab->idestado = 1;
+                log::info('hay mensajes con errores');
+                $cab->idestado = 1; // pendiente
                 $cab->save();
             }
             if ($verificar == 1) {
-                VerificarEnvioMensajes::dispatch($this->id)
+                log::info('hay mensajes que siguen en cola');
+                VerificarEnvioMensajes::dispatch($this->id) // vuelve a verificar porque hay mensajes que siguen en cola
                 ->delay(now()->addMinutes(15));
             }
         }
