@@ -39,8 +39,10 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function handle()
     {
         Log::info("----Verificar envio----");
-        $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->get();
+        $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',3)->get();
 
+        $verificar = 0; // bandera para volver a verificar
+        $errorEnvio = 0; // bandera para reintentar
         foreach($dt as $d){
             if(!empty($d->idenvio))
             {    
@@ -58,6 +60,13 @@ class VerificarEnvioMensajes implements ShouldQueue
                         if($res->status == 'DELIVERED' ){
                             $d->enviado= 1;
                             $d->save();
+                        }else if($res->status == 'QUEUED'){
+                            $verificar = 1;
+                        }else{
+                            $d->enviado= 2;
+                            $d->save();
+
+                            $errorEnvio = 1;
                         }
                     }
                 } catch (Exception $ex) {
@@ -69,14 +78,27 @@ class VerificarEnvioMensajes implements ShouldQueue
 
         log::info('CAMBIAR ESTADO DEL LOTE');
         $cab = EnvioMensajes::where('id', $this->id)->first();
-        $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
-        if(empty($noenviado)){
-            log:info('entra');
+        // $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
+        // if(empty($noenviado)){
+        //     log:info('entra');
+        //     $cab->idestado = 3;
+        //     $cab->save();
+        // }else{
+        //     $cab->idestado = 1;
+        //     $cab->save();
+        // }
+        if( $verificar == 0 && $errorEnvio == 0){
             $cab->idestado = 3;
             $cab->save();
-        }else{
-            $cab->idestado = 1;
-            $cab->save();
+        }else {
+            if ($errorEnvio == 1) {
+                $cab->idestado = 1;
+                $cab->save();
+            }
+            if ($verificar == 1) {
+                VerificarEnvioMensajes::dispatch($this->id)
+                ->delay(now()->addMinutes(15));
+            }
         }
         
     }

@@ -54,8 +54,8 @@ class EnviarMensajes extends Command
 
             $fechaActual= Carbon::now()->toDateString();
 
-            $ms = EnvioMensajes::
-            where('fechaenvio', '<=', $fechaActual)
+            $ms = EnvioMensajes::with('detalles')
+            ->where('fechaenvio', '<=', $fechaActual)
             ->where('aprobado', 1)
             ->where('idestado', 1)
             ->where('intentos', '<', 3)
@@ -71,15 +71,18 @@ class EnviarMensajes extends Command
                     $cabecera->intentos += 1;
                     $cabecera->save();
                     foreach ($cabecera->detalles as $detalle) {
+                        $nro = $detalle['nrotelefono'];
                         if($cabecera->tipo==2){
                             $m = explode(":", $mensaje);
-                            $mensaje = $m[0]. " ".$detalle['nombre'].$m[1]  ;
+                            $sms = $m[0]. " ".utf8_decode($detalle['nombre']).$m[1]  ;
+                            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                            '&message='.$sms .'&msisdn=0'.$nro;
                         }
-                        $nro = $detalle['nrotelefono'];
-                                            
-                        $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-                        '&message='.$mensaje .'&msisdn=0'.$nro;
-
+                        else{
+                            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                            '&message='.$mensaje .'&msisdn=0'.$nro;
+                        }
+                        
                         $client = new Client();
                         try {
                             log::info('Enviando..: ');
@@ -87,8 +90,10 @@ class EnviarMensajes extends Command
                             $response = $client->post($url);
                             $res = json_decode($response->getBody());
                             if (!empty($res)) {
+                                log::info($res->menssage);
                                 if($res->message == 'success'){
                                     $detalle['idenvio'] = $res->id;
+                                    $detalle['enviado'] = 3; //despachado para envio
                                     $detalle['intentos'] += 1;
                                     $detalle->save();
                                 }else{
@@ -100,11 +105,12 @@ class EnviarMensajes extends Command
                         } catch (Exception $ex) {
                             $pref = 'webservice => ';
                             throw new Exception($pref . $ex->getMessage());
+                            continue;
                         }
                     }
 
                     VerificarEnvioMensajes::dispatch($cabecera->id)
-                    ->delay(now()->addMinutes(5));
+                    ->delay(now()->addMinutes(30));
                 }
             }
         }
