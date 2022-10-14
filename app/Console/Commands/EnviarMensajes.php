@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\VerificarEnvioMensajes;
 use Illuminate\Console\Command;
 use App\Models\EnvioMensajes;
+use App\Models\EnvioMensajesDetalle;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Exception;
@@ -44,68 +45,161 @@ class EnviarMensajes extends Command
     public function handle()
     {
         
-
         $hora= Carbon::now()->toTimeString();         
         log::info('Hora: '.$hora);
-        
+        log::info('------------ Inicio Envío mensajes -----------');
+
         if ($hora >='07:00:00' && $hora <= '19:00:00') {
             
-            log::info('------------ Inicio Envío mensajes -----------');
-
             $fechaActual= Carbon::now()->toDateString();
 
-            $ms = EnvioMensajes::with('detalles')
-            ->where('fechaenvio', '<=', $fechaActual)
-            ->where('aprobado', 1)
-            ->where('idestado', 1)
+            $ms = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
+            ->where(function ($q){
+                $q->orWhere('idestado', 1); //PENDIENTE
+                $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
+            })->where('aprobado', 1)
             ->where('intentos', '<', 3)
             ->whereHas('detalles', function ($q) {
                 $q->where('enviado', 2);
             })->get();
 
             if ($ms) {
+                
                 foreach ($ms as $cabecera) {
                     $mensaje = utf8_decode($cabecera->mensaje);
                     
                     $cabecera->idestado = 2;
                     $cabecera->intentos += 1;
                     $cabecera->save();
-                    foreach ($cabecera->detalles as $detalle) {
-                        $nro = $detalle['nrotelefono'];
-                        if($cabecera->tipo==2){
-                            $m = explode(":", $mensaje);
-                            $sms = $m[0]. " ".utf8_decode($detalle['nombre']).$m[1]  ;
-                            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-                            '&message='.$sms .'&msisdn=0'.$nro;
-                        }
-                        else{
-                            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-                            '&message='.$mensaje .'&msisdn=0'.$nro;
-                        }
+
+                    $detalle = EnvioMensajesDetalle::where('idenviomensaje', $cabecera->id)
+                    ->where('enviado', 2)->get();
+                    
+                    $contador = 1;
+                    foreach ($detalle as $d) {
                         
-                        $client = new Client();
-                        try {
-                            log::info('Enviando..: ');
-                            log::info($url);
-                            $response = $client->post($url);
-                            $res = json_decode($response->getBody());
-                            if (!empty($res)) {
-                                log::info($res->message);
-                                if(!empty($res->id)){
-                                    $detalle['idenvio'] = $res->id;
-                                    $detalle['enviado'] = 3; //despachado para envio
-                                    $detalle['intentos'] += 1;
-                                    $detalle->save();
-                                }else{
-                                    $detalle['intentos'] += 1;
-                                    $detalle->save();
+                        //CONTROLAMOS CADA 100 MENSAJES QUE EL LOTE NO HAYA SIDO CANCELADO
+                        if($contador < 100){
+                            $contador +=1;
+
+                            //VERIFICAMOS EL HORARIO ANTES DE ENVIAR CADA MENSAJE PARA NO PASAR EL HORARIO PERMITIDO
+                            $horaActual= Carbon::now()->toTimeString(); 
+                            if ($horaActual >='07:00:00' && $horaActual <= '19:00:00') {
+
+                                $nro = $d->nrotelefono;
+                                //ARMAMOS LA ESTRUCTURA DEL MENSAJE SI ES PERSONALIZADO
+                                if($cabecera->tipo==2){
+                                    $m = explode(":", $mensaje);
+                                    $sms = $m[0]. " ".utf8_decode($d->nombre).$m[1]  ;
+                                    $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                                    '&message='.$sms .'&msisdn=0'.$nro;
+                                }
+                                //ARMAMOS LA ESTRUCTURA DEL MENSAJE SI ES GENERAL
+                                else{
+                                    $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                                    '&message='.$mensaje .'&msisdn=0'.$nro;
+                                }
+                            
+                                //ENVIAMOS NUESTRO PEDIDO A LA API
+                                $client = new Client();
+                                try {
+                                    log::info('Enviando..: ');
+                                    log::info($url);
+                                    $response = $client->post($url);
+                                    $res = json_decode($response->getBody());
+                                    if (!empty($res)) {
+                                        log::info($res->message);
+                                        if(!empty($res->id)){
+                                            $d->idenvio = $res->id;
+                                            $d->enviado = 3; //despachado para envio
+                                            $d->intentos += 1; //agregamos cantidad de intentos
+                                            $d->save();
+                                        }else{
+                                            $d->intentos += 1;
+                                            $d->save();
+                                            continue;
+                                        }
+                                    }
+
+                                } catch (Exception $ex) {
+                                    $pref = 'webservice => ';
+                                    throw new Exception($pref . $ex->getMessage());
                                     continue;
                                 }
+                            
+                            }else{
+                                log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
+                                $cabecera->idestado = 4;
+                                $cabecera->save();
+                                break (1);
                             }
-                        } catch (Exception $ex) {
-                            $pref = 'webservice => ';
-                            throw new Exception($pref . $ex->getMessage());
-                            continue;
+
+                        }else{
+
+                            $contador = 1;
+                            $verificarCabecera = EnvioMensajes::where('id', $d->idenviomensaje)
+                            ->where('idestado', 5)->first(); //traer si tiene estado CANCELADO
+
+                            if($verificarCabecera){
+                                
+                                break (1);
+                           
+                            }else{
+                                
+                                //ENVIAMOS EL MENSAJE - REPETIMOS ESTRUCTURA PARA QUE NO DEJE DE ENVIAR EL MENSAJE ACTUAL DEL RECORRIDO
+
+                                $horaActual= Carbon::now()->toTimeString(); 
+                                if ($horaActual >='07:00:00' && $horaActual <= '19:00:00') {
+
+                                    $nro = $d->nrotelefono;
+                                    //ARMAMOS LA ESTRUCTURA DEL MENSAJE SI ES PERSONALIZADO
+                                    if($cabecera->tipo==2){
+                                        $m = explode(":", $mensaje);
+                                        $sms = $m[0]. " ".utf8_decode($d->nombre).$m[1]  ;
+                                        $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                                        '&message='.$sms .'&msisdn=0'.$nro;
+                                    }
+                                    //ARMAMOS LA ESTRUCTURA DEL MENSAJE SI ES GENERAL
+                                    else{
+                                        $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+                                        '&message='.$mensaje .'&msisdn=0'.$nro;
+                                    }
+                            
+                                    //ENVIAMOS NUESTRO PEDIDO A LA API
+                                    $client = new Client();
+                                    try {
+                                        log::info('Enviando..: ');
+                                        log::info($url);
+                                        $response = $client->post($url);
+                                        $res = json_decode($response->getBody());
+                                        if (!empty($res)) {
+                                            log::info($res->message);
+                                            if(!empty($res->id)){
+                                                $d->idenvio = $res->id;
+                                                $d->enviado = 3; //despachado para envio
+                                                $d->intentos += 1; //agregamos cantidad de intentos
+                                                $d->save();
+                                            }else{
+                                                $d->intentos += 1;
+                                                $d->save();
+                                                continue;
+                                            }
+                                        }
+
+                                    } catch (Exception $ex) {
+                                        $pref = 'webservice => ';
+                                        throw new Exception($pref . $ex->getMessage());
+                                        continue;
+                                    }
+                            
+                                }else{
+                                    log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
+                                    $cabecera->idestado = 4;
+                                    $cabecera->save();
+                                    break (1);
+                                }
+
+                            }
                         }
                     }
 

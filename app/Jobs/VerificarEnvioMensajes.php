@@ -71,6 +71,7 @@ class VerificarEnvioMensajes implements ShouldQueue
                 } catch (Exception $ex) {
                     $pref = 'webservice => ';
                     throw new Exception($pref . $ex->getMessage());
+                    continue;
                 }
             }
         }
@@ -104,5 +105,19 @@ class VerificarEnvioMensajes implements ShouldQueue
             }
         }
         
+    }
+
+    public function retryUntil()
+    {
+        // will keep retrying, by backoff logic below
+        // until 24 hours from first run.
+        // After that, if it fails it will go
+        // to the failed_jobs table
+        return now()->addHours(24);
+    }
+
+    public function backoff()
+    {
+        return [60, 60, 60, 60, 60, 180 ];
     }
 }
