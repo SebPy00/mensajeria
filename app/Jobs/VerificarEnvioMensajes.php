@@ -39,8 +39,10 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function handle()
     {
         Log::info("----Verificar envio----");
-        $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->get();
+        $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',3)->get();
 
+        $verificar = 0; // bandera para volver a verificar
+        $errorEnvio = 0; // bandera para reintentar
         foreach($dt as $d){
             if(!empty($d->idenvio))
             {    
@@ -58,26 +60,64 @@ class VerificarEnvioMensajes implements ShouldQueue
                         if($res->status == 'DELIVERED' ){
                             $d->enviado= 1;
                             $d->save();
+                        }else if($res->status == 'QUEUED'){
+                            $verificar = 1;
+                        }else{
+                            $d->enviado= 2;
+                            $d->save();
+                            $errorEnvio = 1;
                         }
                     }
                 } catch (Exception $ex) {
                     $pref = 'webservice => ';
                     throw new Exception($pref . $ex->getMessage());
+                    continue;
                 }
             }
         }
 
         log::info('CAMBIAR ESTADO DEL LOTE');
+        //obtenemos datos de la cabecera
         $cab = EnvioMensajes::where('id', $this->id)->first();
-        $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
-        if(empty($noenviado)){
-            log:info('entra');
-            $cab->idestado = 3;
-            $cab->save();
-        }else{
-            $cab->idestado = 1;
-            $cab->save();
+        
+        //si no encontró errores
+        if( $verificar == 0 && $errorEnvio == 0){
+            //verificamos que no hayan mensajes sin enviar
+            $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',2)->first();
+            if(empty($noenviado)){
+                log:info('no tiene mensajes sin enviar');
+                $cab->idestado = 3; // pasa a estado procesado - cabecera
+                $cab->save();
+            }else{
+                $cab->idestado = 1; // pasa a pendiente
+                $cab->save();
+            }
+        }else {
+            if ($errorEnvio == 1) {
+                log::info('hay mensajes con errores');
+                $cab->idestado = 1; // pendiente
+                $cab->save();
+            }
+            if ($verificar == 1) {
+                log::info('hay mensajes que siguen en cola');
+                VerificarEnvioMensajes::dispatch($this->id) // vuelve a verificar porque hay mensajes que siguen en cola
+                ->delay(now()->addMinutes(15));
+            }
         }
         
+    }
+
+    public function retryUntil()
+    {
+        // will keep retrying, by backoff logic below
+        // until 24 hours from first run.
+        // After that, if it fails it will go
+        // to the failed_jobs table
+        return now()->addHours(24);
+    }
+
+    public function backoff()
+    {
+        return [60, 60, 60, 60, 60, 180 ];
     }
 }

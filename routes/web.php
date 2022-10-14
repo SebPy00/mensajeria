@@ -1,7 +1,8 @@
 <?php
 
+use App\Exports\SolicitudPagaresPendientesExport;
 use Illuminate\Support\Facades\Route;
-
+use Maatwebsite\Excel\Facades\Excel;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::get('/excel', function ($codEntidad, $tipoDoc) {
+//     //return Excel::download(new SolicitudPagaresPendientesExport($codEntidad), 'pagares_pendientes.xlsx');
+//     return Excel::store(new SolicitudPagaresPendientesExport($codEntidad, $tipoDoc), 'pagares_pendientes.xlsx', 's4');
+// });
