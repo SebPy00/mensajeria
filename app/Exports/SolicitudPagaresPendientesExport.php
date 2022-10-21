@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Illuminate\Support\Facades\Log;
 use App\Models\Pagare;
 use Carbon\Carbon;
+ini_set('memory_limit', '-1');
 
 class SolicitudPagaresPendientesExport implements FromCollection, WithHeadings,
 WithEvents, ShouldAutoSize, WithStyles
@@ -27,14 +28,15 @@ WithEvents, ShouldAutoSize, WithStyles
         $this->codEntidad=  $codEntidad;
         $this->tipoDocumento = $tipoDocumento;
         log::info('INICIANDO ARCHIVO, entidad: '. $this->codEntidad . ' doc: '.$this->tipoDocumento);
-        switch ($this->tipoDocumento){
-            case 1:
-                $this->doc = 'TARJETAS';
-            case 2:
-                $this->doc = 'PAGARE';
-            case 3:
-                $this->doc = 'Ambos';
+        
+        if($this->tipoDocumento == 1){
+           $this->doc = 'TARJETAS';
+        }elseif($this->tipoDocumento == 2){
+           $this->doc = 'PAGARE';
+        }else{
+            $this->doc = 'Ambos';
         }
+        log::info($this->doc);
     }
 
     public function collection()
@@ -42,41 +44,12 @@ WithEvents, ShouldAutoSize, WithStyles
         $lista = [];
 
         //traemos los datos a mostrar
-        if($this->codEntidad == 1){ //tambien registrado en el sistema como codemp 0, queremos mostrar en el mismo registro
-            if($this->doc == 'Ambos'){
-                
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
-                FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE' and (c.codemp = (:a) or  c.codemp = 0) order by c.feccom",
-                ['a' => $this->codEntidad]);
-
-                //ACTUALIZAR PAGARÉS 
-                log::info('ACTUALIZANDO PAGARE');
-                DB::select("UPDATE pagare SET cant_solicitudes = cant_solicitudes + 1, fecha_ult_solicitud = (:a)
-                where ope in (SELECT ip.ope FROM view_inventario_pagare ip join car c on ip.car= c.car 
-                where estado = 'PENDIENTE' and (c.codemp = (:b) or  c.codemp = 0))",
-                ['a'=> Carbon::now()->toDateString(),'b' => $this->codEntidad]);
-
-            }else{
-
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
-                FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE'
-                and (c.codemp = (:a) or  c.codemp = 0) and ip.tipodocumento = (:b) order by c.feccom",
-                ['a' => $this->codEntidad, 'b' => $this->doc]);
-
-                //ACTUALIZAR PAGARÉS
-                log::info('ACTUALIZANDO PAGARE');
-                DB::select("UPDATE pagare SET cant_solicitudes = cant_solicitudes + 1, fecha_ult_solicitud = (:a)
-                where ope in (SELECT  ip.ope FROM view_inventario_pagare ip join car c on ip.car= c.car 
-                where estado = 'PENDIENTE' and (c.codemp = (:b) or  c.codemp = 0) and ip.tipodocumento = (:c))",
-                ['a'=> Carbon::now()->toDateString(),'b' => $this->codEntidad, 'c' => $this->doc]);
-
-            }
-        }elseif($this->codEntidad == 8){ //ITAU - ENVIAR SOLO 50 REGISTROS
+        if($this->codEntidad == 8){ //ITAU - ENVIAR SOLO 50 REGISTROS
 
             if($this->tipoDocumento == 3){
 
                 log::info('ENTIDAD: ITAU');
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
+                $data = DB::select("SELECT c.mescom,ip.nro_operacion_pagare, ip.ope, ip.nroci, ip.cliente, ip.estado
                 FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE' and c.codemp = (:a) order by c.feccom limit 50",
                 ['a' => $this->codEntidad]);
 
@@ -89,7 +62,7 @@ WithEvents, ShouldAutoSize, WithStyles
 
             }else{
 
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
+                $data = DB::select("SELECT c.mescom,ip.nro_operacion_pagare, ip.ope, ip.nroci, ip.cliente, ip.estado
                 FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE' and c.codemp = (:a)
                 and ip.tipodocumento = (:b) order by c.feccom limit 50",
                 ['a' => $this->codEntidad, 'b' => $this->doc]);
@@ -105,7 +78,7 @@ WithEvents, ShouldAutoSize, WithStyles
 
             if($this->tipoDocumento == 3){
 
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
+                $data = DB::select("SELECT c.mescom,ip.nro_operacion_pagare, ip.ope, ip.nroci, ip.cliente, ip.estado
                 FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE' 
                 and c.codemp = (:a) order by c.feccom", ['a' => $this->codEntidad]);
                 
@@ -118,7 +91,7 @@ WithEvents, ShouldAutoSize, WithStyles
 
             }else{
 
-                $data = DB::select("SELECT c.mescom, ip.ope, ip.nroci, ip.cliente, ip.estado
+                $data = DB::select("SELECT c.mescom, ip.ope,ip.nro_operacion_pagare, ip.nroci, ip.cliente, ip.estado
                 FROM view_inventario_pagare ip join car c on ip.car= c.car where estado = 'PENDIENTE' 
                 and c.codemp = (:a) and ip.tipodocumento = (:b) order by c.feccom",
                 ['a' => $this->codEntidad, 'b' => $this->doc]);
@@ -136,21 +109,12 @@ WithEvents, ShouldAutoSize, WithStyles
             foreach ($data as $d){
                 $fila = [
                     'mescompra'=>$d->mescom,
-                    'ope'=>$d->ope,
+                    'ope'=>$d->nro_operacion_pagare,
                     'ci'=>$d->nroci,
                     'cliente'=>utf8_encode($d->cliente),
                     'estado'=>$d->estado,
                 ];
                 $lista[]= $fila;
-
-                //agregar cambios en pagaré - MUY LENTO
-                // $p = Pagare::where('ope', $d->ope)->first();
-                // log::info($p->regnro);
-                // $p->cant_solicitudes += 1;
-                // $p->fecha_ult_solicitud = Carbon::now()->toDateString();         
-                // $p->save();
-
-            
             }
         }
 

@@ -39,6 +39,11 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function handle()
     {
         Log::info("----Verificar envio----");
+        //obtenemos datos de la cabecera
+        $cab = EnvioMensajes::where('id', $this->id)->first();
+        $cab->idestado = 1; // verificando
+        $cab->save();
+
         $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',3)->get();
 
         $verificar = 0; // bandera para volver a verificar
@@ -77,8 +82,6 @@ class VerificarEnvioMensajes implements ShouldQueue
         }
 
         log::info('CAMBIAR ESTADO DEL LOTE');
-        //obtenemos datos de la cabecera
-        $cab = EnvioMensajes::where('id', $this->id)->first();
         
         //si no encontró errores
         if( $verificar == 0 && $errorEnvio == 0){
@@ -88,15 +91,26 @@ class VerificarEnvioMensajes implements ShouldQueue
                 log:info('no tiene mensajes sin enviar');
                 $cab->idestado = 3; // pasa a estado procesado - cabecera
                 $cab->save();
+                
             }else{
-                $cab->idestado = 1; // pasa a pendiente
-                $cab->save();
+                if($cab->intentos < 3){
+                    $cab->idestado = 1; // pasa a pendiente
+                    $cab->save();
+                }else{
+                    $cab->idestado = 3; // pasa a estado procesado - cabecera
+                    $cab->save();
+                }
             }
         }else {
             if ($errorEnvio == 1) {
                 log::info('hay mensajes con errores');
-                $cab->idestado = 1; // pendiente
-                $cab->save();
+                if($cab->intentos < 3){
+                    $cab->idestado = 1; // pendiente
+                    $cab->save();
+                }else{
+                    $cab->idestado = 3; // pasa a estado procesado - cabecera
+                    $cab->save();
+                }
             }
             if ($verificar == 1) {
                 log::info('hay mensajes que siguen en cola');

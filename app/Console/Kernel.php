@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Carbon\Carbon;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,9 +16,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('enviar:mensajes')
-         ->everyMinute();
-        // $schedule->command('inspire')->hourly();
+        $hora= Carbon::now()->toTimeString(); 
+        if ($hora >='07:00:00' && $hora <= '19:00:00') {
+            $schedule->command('enviar:mensajes')
+            ->everyMinute();
+        }
+        
+        $schedule->command('enviar:correos')
+            ->weekly()
+            ->tuesdays()
+            ->at('08:00');
     }
 
     /**
