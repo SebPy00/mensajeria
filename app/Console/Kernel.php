@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
             ->at('08:00');
     }
 
-    /**
+    /** 
      * Register the commands for the application.
      *
      * @return void

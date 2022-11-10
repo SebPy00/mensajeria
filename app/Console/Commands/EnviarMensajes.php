@@ -54,17 +54,16 @@ class EnviarMensajes extends Command
             $fechaActual= Carbon::now()->toDateString();
 
             $ms = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
+            ->where('fecha_envio_hasta', '>=', $fechaActual)
             ->where(function ($q){
                 $q->orWhere('idestado', 1); //PENDIENTE
                 $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
             })->where('aprobado', 1)
-            ->where('intentos', '<', 3)
             ->whereHas('detalles', function ($q) {
                 $q->where('enviado', 2);
             })->get();
 
             if ($ms) {
-                               
                 foreach ($ms as $cabecera) {
                     log::info('------------ Inicio Envío mensajes en lote: ' . $cabecera->id . '------------');
                     
@@ -75,7 +74,7 @@ class EnviarMensajes extends Command
                     $cabecera->save();
 
                     $detalle = EnvioMensajesDetalle::where('idenviomensaje', $cabecera->id)
-                    ->where('enviado', 2)->get();
+                    ->where('enviado', 2)->where('intentos', '<', 3)->get();
                     
                     $contador = 1;
                     foreach ($detalle as $d) {
