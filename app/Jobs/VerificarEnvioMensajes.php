@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class VerificarEnvioMensajes implements ShouldQueue
 {
@@ -25,7 +26,7 @@ class VerificarEnvioMensajes implements ShouldQueue
      */
     protected int $id;
     //public $tries = 5;
-    public $timeout = 3600;
+    public $timeout = 7200;
     public function __construct($id)
     {   
         $this->id = $id;
@@ -98,16 +99,18 @@ class VerificarEnvioMensajes implements ShouldQueue
     }
 
     public function cambiarEstadoVerificacion(){
-       
+        
+        $fechaActual= Carbon::now()->toDateString();
+
         $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado', 2)
-        ->where('intentos', '<', 3)->first();
+        ->where('intentos', '<', 3)->where('fechaenvio', '<=', $fechaActual)
+        ->where('fecha_envio_hasta', '<=', $fechaActual)->first();
         
         if($noenviado){
             log::info('pasa a pendiente');
             $cab = EnvioMensajes::where('id', $this->id)->first();
             $cab->idestado = 1; // pasa a pendiente
             $cab->save();
-           
         }else{
             log::info('pasa a procesado');
             $cab = EnvioMensajes::where('id', $this->id)->first();
@@ -119,11 +122,11 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function verificar($d, $url){
         $client = new Client;
         try {
-            log::info($url);
+            //log::info($url);
             $response = $client->post($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {
-                log::info($res->message);
+                //log::info($res->message);
                 if($res->status == 'DELIVERED' ){
                     $d->enviado= 1;
                     $d->save();

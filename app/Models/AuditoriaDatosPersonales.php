@@ -5,10 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Cliente extends Model
+class AuditoriaDatosPersonales extends Model
 {
-    
     use HasFactory;
-    protected $primaryKey = 'cli';
-    protected $table = 'cli';
+    protected $table = 'aud_datos_personales'; 
 }

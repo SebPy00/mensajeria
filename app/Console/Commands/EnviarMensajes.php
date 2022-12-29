@@ -47,10 +47,15 @@ class EnviarMensajes extends Command
      */
     public function handle()
     {
-        $hora= Carbon::now()->toTimeString();         
+        $date = new Carbon('today');
+        if($date->dayName != 'domingo'){
+            $hora= Carbon::now()->toTimeString();         
 
-        if ($hora >='07:00:00' && $hora <= '19:00:00') {
-            $this->obtenerLote();
+            if ($hora >='07:00:00' && $hora <= '19:00:00') {
+                $this->obtenerLote();
+            }
+        }else{
+            log::info('ATENCIÓN! NO SE PROCESAN MENSAJES LOS DÍAS DOMINGO');
         }
     }
 
@@ -74,6 +79,53 @@ class EnviarMensajes extends Command
             $lote->intentos += 1;
             $lote->save();
             $this->procesarLoteMensajes($lote);
+        }else{
+           // log::info('------------ Inicio de busqueda de lotes pendientes vencidos ------------');
+            $this->lotesPendientesVencidos();
+        }
+    }
+    
+    public function lotesPendientesVencidos(){
+
+        //BUSCAR PENDIENTES CON FECHA VENCIDA
+        $fechaActual= Carbon::now()->toDateString();
+
+        $vencido = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
+        ->where('fecha_envio_hasta', '<=', $fechaActual)
+        ->where(function ($q){
+            $q->orWhere('idestado', 1); //PENDIENTE
+            $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
+        })->where('aprobado', 1)
+        ->whereHas('detalles', function ($q) {
+            $q->where('enviado', 3); // despachado - a verificar
+        })->orderBy('id', 'asc')->first();
+
+        if($vencido){
+            log::info('------------ Verificando lote vencido : ' . $vencido->id . '------------');
+            $vencido->idestado = 2;
+            $vencido->save();
+            $this->verificarEnvioMensajes($vencido->id);
+        }else{
+            $this->pasarAprocesadoLoteVencido();
+        }
+    }
+
+    public function pasarAprocesadoLoteVencido(){
+        //BUSCAR PENDIENTES CON FECHA VENCIDA
+        //log::info('------------ Busqueda lote pendiente con fecha vencida ------------');
+        $fechaActual= Carbon::now()->toDateString();
+
+        $procesar = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
+        ->where('fecha_envio_hasta', '<=', $fechaActual)
+        ->where(function ($q){
+            $q->orWhere('idestado', 1); //PENDIENTE
+            $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
+        })->where('aprobado', 1)->orderBy('id', 'asc')->first();
+
+        if($procesar){
+            log::info('------------ Lote vencido nro: '.$procesar->id.' pasa a procesado ------------');
+            $procesar->idestado = 3;
+            $procesar->save();
         }
     }
 
@@ -83,7 +135,7 @@ class EnviarMensajes extends Command
             ->where('enviado', 2)->where('intentos', '<', 3)->get();
 
             if($detalle){
-                log:info('inicia recorrido para envio de mensajes');
+                log:info('Inicia recorrido para envio de mensajes');
                 $contador = 0;
                 foreach ($detalle as $d) {
                     $horaActual= Carbon::now()->toTimeString(); 
@@ -162,11 +214,11 @@ class EnviarMensajes extends Command
     public function enviarMensaje($url, $d){
         $client = new Client();
         try {
-            log::info($url);
+            //log::info($url);
             $response = $client->post($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {
-                log::info($res->message);
+                //log::info($res->message);
                 if(!empty($res->id)){
                     //guardamos el historial
                     $historial = new HistorialEnvioID();

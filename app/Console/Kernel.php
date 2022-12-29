@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Models\Cliente;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,16 +18,26 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $hora= Carbon::now()->toTimeString(); 
-        if ($hora >='07:00:00' && $hora <= '19:00:00') {
-            $schedule->command('enviar:mensajes')
-            ->everyMinute();
+        $date = new Carbon('today');
+
+        if($date->dayName != 'domingo'){
+            $hora= Carbon::now()->toTimeString(); 
+            if ($hora >='07:00:00' && $hora <= '19:00:00') {
+                $schedule->command('enviar:mensajes')
+                ->everyMinute();
+            }
         }
-        
+
         $schedule->command('enviar:correos')
-            ->weekly()
-            ->tuesdays()
-            ->at('08:00');
+        ->weekly()
+        ->tuesdays()
+        ->at('08:00');
+
+        $dm = Cliente::where('datos_migrados', false)->first();
+        if($dm){
+           // log::info('ATENCIÓN! POBLANDO TABLAS DE DATOS DE CLIENTES');
+            $schedule->command('poblar:datoscliente')->everyTwoMinutes();
+        }
     }
 
     /** 
