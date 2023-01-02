@@ -7,9 +7,20 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\Cliente;
+use App\Console\Commands\EnviarMensajes;
+use App\Console\Commands\PoblarDatos;
+use App\Console\Commands\SendEmailsSolicitudPagaré;
+
 
 class Kernel extends ConsoleKernel
 {
+
+    protected $commands = [
+        EnviarMensajes::class,
+        PoblarDatos::class,
+        SendEmailsSolicitudPagaré::class
+    ];
+
     /**
      * Define the application's command schedule.
      *
@@ -33,11 +44,11 @@ class Kernel extends ConsoleKernel
         ->tuesdays()
         ->at('08:00');
 
-        $dm = Cliente::where('datos_migrados', false)->first();
-        if($dm){
-           // log::info('ATENCIÓN! POBLANDO TABLAS DE DATOS DE CLIENTES');
-            $schedule->command('poblar:datoscliente')->everyTwoMinutes();
-        }
+        // $dm = Cliente::where('datos_migrados', false)->first();
+        // if($dm){
+        //    // log::info('ATENCIÓN! POBLANDO TABLAS DE DATOS DE CLIENTES');
+        //     $schedule->command('poblar:datoscliente')->everyTwoMinutes();
+        // }
     }
 
     /** 

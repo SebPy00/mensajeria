@@ -100,11 +100,8 @@ class VerificarEnvioMensajes implements ShouldQueue
 
     public function cambiarEstadoVerificacion(){
         
-        $fechaActual= Carbon::now()->toDateString();
-
         $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado', 2)
-        ->where('intentos', '<', 3)->where('fechaenvio', '<=', $fechaActual)
-        ->where('fecha_envio_hasta', '<=', $fechaActual)->first();
+        ->where('intentos', '<', 3)->first();
         
         if($noenviado){
             log::info('pasa a pendiente');

@@ -80,7 +80,7 @@ class EnviarMensajes extends Command
             $lote->save();
             $this->procesarLoteMensajes($lote);
         }else{
-           // log::info('------------ Inicio de busqueda de lotes pendientes vencidos ------------');
+            //log::info('------------ Sin lotes pendientes de envío ------------');
             $this->lotesPendientesVencidos();
         }
     }
