@@ -65,6 +65,7 @@ class EnviarMensajes extends Command
 
         $lote = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
         ->where('fecha_envio_hasta', '>=', $fechaActual)
+        ->where('tipo', '!=', 3 ) //tipo solo para subir chatbot y autogestor
         ->where(function ($q){
             $q->orWhere('idestado', 1); //PENDIENTE
             $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
@@ -92,6 +93,7 @@ class EnviarMensajes extends Command
 
         $vencido = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
         ->where('fecha_envio_hasta', '<=', $fechaActual)
+        ->where('tipo', '!=', 3 ) //tipo solo para subir chatbot y autogestor
         ->where(function ($q){
             $q->orWhere('idestado', 1); //PENDIENTE
             $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
@@ -117,6 +119,7 @@ class EnviarMensajes extends Command
 
         $procesar = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
         ->where('fecha_envio_hasta', '<=', $fechaActual)
+        ->where('tipo', '!=', 3 ) //tipo solo para subir chatbot y autogestor
         ->where(function ($q){
             $q->orWhere('idestado', 1); //PENDIENTE
             $q->orWhere('idestado', 4); //DETENIDO POR HORARIO
@@ -136,10 +139,22 @@ class EnviarMensajes extends Command
 
             if($detalle){
                 log:info('Inicia recorrido para envio de mensajes');
+
+                //VERIFICACION DE HORARIO
+
+                $date = Carbon::now();
+                $desde = '08:00:00';
+                $hasta = '18:00:00';
+
+                if($date->dayName == 'sábado'){
+                    $hasta = '12:00:00';
+                }
+
                 $contador = 0;
                 foreach ($detalle as $d) {
+                    
                     $horaActual= Carbon::now()->toTimeString(); 
-                    if ($horaActual >='07:00:00' && $horaActual <= '19:00:00') {
+                    if ($horaActual >= $desde && $horaActual <= $hasta) {
                         if($contador < 100){
                             $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
                             $contador +=1;

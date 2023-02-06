@@ -11,14 +11,14 @@ class MakeArchivoFactura extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'factura:txt';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Generar archivo txt de la factura emitida para el cliente';
 
     /**
      * Create a new command instance.

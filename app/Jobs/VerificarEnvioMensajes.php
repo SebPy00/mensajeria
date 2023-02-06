@@ -119,11 +119,11 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function verificar($d, $url){
         $client = new Client;
         try {
-            //log::info($url);
+           // log::info($url);
             $response = $client->post($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {
-                //log::info($res->message);
+                log::info($res->message);
                 if($res->status == 'DELIVERED' ){
                     $d->enviado= 1;
                     $d->save();
