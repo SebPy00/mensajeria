@@ -40,31 +40,33 @@ class Kernel extends ConsoleKernel
             if($date->dayName != 'sábado'){
                 if ($hora >='08:00:00' && $hora <= '18:00:00') {
                     $schedule->command('enviar:mensajes')
-                    ->everyMinute();
-                    $schedule->command('enviar:gw')
-                    ->everyTenMinutes();
+                    ->everyFiveMinutes();
                 }
             }else{
                 if ($hora >='08:00:00' && $hora <= '12:00:00') {
                     $schedule->command('enviar:mensajes')
-                    ->everyMinute();
-                    $schedule->command('enviar:gw')
-                    ->everyTenMinutes();
+                    ->everyFiveMinutes();
                 }
             }
         }
+
+        //MENSAJERIA INTERNA
+
+        $schedule->command('enviar:gw')->everyTwoHours();
+
+        //SOLICITUD DE DOCUMENTOS POR CORREO
 
         $schedule->command('enviar:correos')
         ->weekly()
         ->tuesdays()
         ->at('08:00');
 
-        //$schedule->command('poblar:telymail')->everyFiveMinutes();
-        // $dm = Cliente::where('datos_migrados', false)->first();
-        // if($dm){
-        //    // log::info('ATENCIÓN! POBLANDO TABLAS DE DATOS DE CLIENTES');
-        //     $schedule->command('poblar:datoscliente')->everyTwoMinutes();
-        // }
+        // POBLAR TABLA DE DATOS PERSONALES, LABORALES, MAILS, TELEFONOS - DOMINGOS
+        if($date->dayName == 'domingo'){
+            $schedule->command('poblar:telymail')->everyTwoMinutes();       
+            $schedule->command('poblar:datoscliente')->everyTwoMinutes();
+        }
+        
     }
 
     /** 

@@ -47,7 +47,7 @@ class VerificarEnvioMensajes implements ShouldQueue
             if($lote) $this->getMensajesDespachados();
             
         }catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new Exception('Error verificacion 1: '.$ex->getMessage());
         }
     }
     
@@ -63,7 +63,7 @@ class VerificarEnvioMensajes implements ShouldQueue
                 return false;
             }
         } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new Exception('Error verificacion 2: '. $ex->getMessage());
             return false;
         }
         
@@ -94,7 +94,7 @@ class VerificarEnvioMensajes implements ShouldQueue
             $this->cambiarEstadoVerificacion();
             
         } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new Exception('Error verificacion 3: '.$ex->getMessage());
         }
     }
 
@@ -138,7 +138,7 @@ class VerificarEnvioMensajes implements ShouldQueue
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
-            throw new Exception($pref . $ex->getMessage());
+            throw new Exception('Error verificacion 4: '.$pref . $ex->getMessage());
             return 'ERROR';
         }
     }
@@ -154,5 +154,5 @@ class VerificarEnvioMensajes implements ShouldQueue
     public function backoff()
     {
         return [7200, 7200, 7200, 7200, 7200, 10800 ];
-    }
+    } 
 }

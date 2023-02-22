@@ -59,7 +59,7 @@ class EnviarMensajes extends Command
         }
     }
 
-    public function obtenerLote(){
+    public function obtenerLote(){ 
 
         $fechaActual= Carbon::now()->toDateString();
 
@@ -177,7 +177,7 @@ class EnviarMensajes extends Command
                $this->verificarEnvioMensajes($lote->id);
             }
         }catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new Exception('ERROR 1: funcion procesarLoteMensajes - ' . $ex->getMessage());
         }
     }
 
@@ -252,7 +252,7 @@ class EnviarMensajes extends Command
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
-            throw new Exception($pref . $ex->getMessage());
+            throw new Exception('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());
         }
     }
 

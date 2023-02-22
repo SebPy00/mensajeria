@@ -5,16 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Factura extends Model
+class DineroTipo extends Model
 {
     use HasFactory;
-    protected $table = "fac";
-    protected $primaryKey = "regnro";
+    protected $table = 'dintip';
+    protected $primaryKey = "dintip";
     public $timestamps = false;
     public $incrementing = false;
-
-    public function cliente()
-    {
-        return $this->belongsTo(Cliente::class, 'cli');
-    }
 }
