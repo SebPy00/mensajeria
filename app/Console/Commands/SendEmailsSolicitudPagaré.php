@@ -3,9 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Exports\SolicitudPagaresPendientesExport;
-use App\Models\CodigoEmpresa;
 use App\Models\FrecuenciaEnvioCorreo;
-use App\Models\TipoMail;
 use App\Models\EmpresaMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
