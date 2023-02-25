@@ -77,28 +77,43 @@ class MakeArchivoFactura extends Command
         $contador = 1;
         $cabecera = '';
         $detalles = '';
-
+        $itemsOpe = '';
+        $precios = '';
+        //totales
         $total = 0;
         $total_neto = 0;
         $imp_5 = 0;
         $imp_10 = 0;
         $gra_5 = 0;
         $gra_10 = 0;
+                
+        //necesito almacenar una vez
+        $dintip = '';
+        $cli = '';
+        $moneda = 'PYG';
+        $cotizacion = 1;
         
-        $datosReceptor = '';
-        $datosFE = '';
         $factura = Factura::with('cliente')->where('fac', $fac)->where('timb',$timb)->get();
         foreach($factura as $f){
             
             if($contador ==  1){
                 $cabecera = $this->formarCabecera($f);
                 $detalles = $this->formarDetalle($f, $contador);
-                $datosReceptor = $this->formarDatosReceptor($f->cliente);
-                $datosFE = $this->camposFacturaElectronica($f->dintip);
+                $itemsOpe = $this->itemsOperacion($contador, '');
+                $precios = $this->camposPrecio($contador,$f->preuni );
+                $dintip =$f->dintip;
+                $cli = $f->cliente;
+                
+                if($f->mon == 1){
+                    $moneda = 'USD'; 
+                    $cotizacion = $f->cotiza == 1 ;
+                }
             }else{
                 $detalles .= "\n"  . $this->formarDetalle($f,$contador);
+                $itemsOpe .= "\n"  . $this->itemsOperacion($contador, '');
+                $precios .= "\n"  . $this->camposPrecio($contador,$f->preuni );
+
             }
-            
             if(intval($f->ivapor) == 10){
                 $gra_10 = $f->grav;
                 $imp_10 = $f->iva;
@@ -106,8 +121,8 @@ class MakeArchivoFactura extends Command
                 $gra_5 = $f->grav;
                 $imp_5 = $f->iva;
             } 
-            $total_neto = $f->exe + $f->grav;
-            $total = $f->tot;
+            $total_neto += $f->exe + $f->grav;
+            $total += $f->can * $f->preuni;
             $contador ++;
         }
 
@@ -116,11 +131,14 @@ class MakeArchivoFactura extends Command
         $resumen = $this->formarResumen($contador, $caracteres);
         $lineaDE = $this->formarLineaDE();
         $opeComercial = $this->formarCamposOperacionComercial($f);
+        $datosReceptor = $this->formarDatosReceptor($cli);
+        $datosFE = $this->camposFacturaElectronica($dintip);
         $condicionOperacion = $this->condicionOperacion();
-       
+        $formaPago = $this->formaPagoContado($dintip, $total,$moneda, $cotizacion);
+
         $this->writeTxt($cabecera,$detalles, $totales, $resumen, $lineaDE, 
                         $fac, $timb, $linea_timbrado, $opeComercial, $datosReceptor, 
-                        $datosFE, $condicionOperacion);
+                        $datosFE, $condicionOperacion, $formaPago, $itemsOpe, $precios );
     }
 
     private function formarCabecera($f){
@@ -322,42 +340,15 @@ class MakeArchivoFactura extends Command
         return $conOpe;
     }
 
-    private function formaPagoContado($dintip, $monto, $mon, $cambio){
-        //SERIA MEJOR CREAR UNA TABLA, ALMACENAR ESTOS CODIGOS Y RELACIONARLAS CON DINTIP, PARA QUE EL DIA DE MAÑANA SE ESTIRE DE AHÍ CUANDO SE CREEN MÁS DINTIPS
-        ////////////////////////////////////
-        ////CODIGOS PARA FORMAS DE PAGO////
-        ///////////////////////////////////
-        // 1= Efectivo  (1, 54, )
-        // 2= Cheque (8, 13, 221, 231, 271)
-        // 3= Tarjeta de crédito
-        // 4= Tarjeta de débito
-        // 5= Transferencia (2,3,7,9, 10, 14, 15, 22, 23, 25, 27, 31, 32, 44, 45, 46, 48, 49, 52, 53, 56, 57, )
-        // 6= Giro
-        // 7= Billetera electrónica
-        // 8= Tarjeta empresarial
-        // 9= Vale
-        // 10= Retención
-        // 11= Anticipo
-        // 12= Valor fiscal
-        // 13= Valor comercial
-        // 14= Compensación
-        // 15= Permuta
-        // 16= Pago bancario (Informar solo si 104.1=5)
-        // 17 = Pago Móvil
-        // 18 = Donación
-        // 19 = Promoción
-        // 20 = Consumo Interno
-        // 21 = Pago Electrónico (4, 33, 35, 36, 51)
-        // 99 = Otro
-        ///////////////////////////////////////(5, 6, 11, 12, 24, 455 )->dintip que no sé como clasificar
-
+    private function formaPagoContado($dintip, $monto, $moneda, $cambio){
         $formaPago = '';
         
         $tipoPago = $this->determinarTipoPago($dintip); //OTRO
-        
         $descripciontp = '';
-        if($tipoPago == 99) $descripciontp = '';
-        $tp = [113,1, $tipoPago, $monto, $mon, $cambio, $descripciontp];
+        if($tipoPago == 99) $descripciontp =  $tipoPago['des'];
+        if($cambio == 1) $cambio = '';
+
+        $tp = [113,1, $tipoPago['cod'], $monto, $moneda, $cambio, $descripciontp];
 
         foreach($tp as $t){
             $formaPago .=  $t. ';';
@@ -365,29 +356,49 @@ class MakeArchivoFactura extends Command
 
         return $formaPago;
     }
+
+    private function itemsOperacion($linDet, $codInt){
+        $itemsOpe = '';
+        $arancel = '';
+        $ncm = '';     
+        $dncpGral = '';  
+        $dncpEspc = '';    
+        $gtin = '';    
+        $codPais = '';    
+        $infoInt = '';
+        $codRel = ''; //DETERMINAR 1->TOLERANCIA DE QUIEBRA 2->TOLERANCIA DE MERMA - opcional si 101.3 = 7 (no es el caso, es 1->fac electro)
+        $cantQuiebra = ''; //obligatorio si se informa 118.10
+        $porcQuiebra = ''; //obligatorio si se informa 118.10
+        $cdcAnticipo = ''; //obligatorio para transaccion igual a anticipo
+        $io = [118,1, $linDet, $codInt, $arancel, $ncm, $dncpGral, $dncpEspc, $gtin, $codPais, $infoInt, $codRel, $cantQuiebra, $porcQuiebra, $cdcAnticipo];
+
+        foreach($io as $i){
+            $itemsOpe .=  $i. ';';
+        }
+
+        return $itemsOpe;
+    }
+
+    private function camposPrecio($linDet, $precioUnit ){
+        $camposPrecio = '';
+        $tipoCambio = ''; //NO SE INFORMA PORQUE TENEMOS UN SOLO TIPO DE CAMBIO PARA TODA LA FACTURA
+        $cp = [119,$linDet, $precioUnit, $tipoCambio];
+
+        foreach($cp as $c){
+            $camposPrecio .=  $c. ';';
+        }
+
+        return $camposPrecio;
+    }
+
     private function determinarIndicadorPresencia($dintip){
-        // 1->operacion presencial
-        // 2->operacion electronica
-        // 4->venta domicilio
-        // 5->operacion bancaria 
-        // 6->operacion ciclica
-        // 9->otro
+        $dt = DineroTipo::with('indicadorPresencia')->where('dintip', $dintip)->first();
+        return ['cod'=> $dt->indicadorPresencia->cod,'des'=>$dt->nomdt];
+    }
 
-        $dt = DineroTipo::where('dintip', $dintip)->first();
-
-        $indp = 9; //otro por defecto
-        $desc = $dt->nomdt;
-        if($dintip == 1 || $dintip == 54) 
-            $indp = 1;
-        elseif($dintip == 4 || $dintip == 5 || $dintip == 33 || $dintip == 35 || $dintip == 36 || $dintip == 51) 
-            $indp = 2;
-        elseif($dintip == 2 || $dintip == 3 || $dintip == 7 || $dintip == 8 || $dintip == 9 || $dintip == 10 || $dintip == 12
-                || $dintip == 13 || $dintip == 14 || $dintip == 15 || $dintip == 22 || $dintip == 23 || $dintip ==24 || $dintip ==25 || $dintip ==27
-                || $dintip == 31 || $dintip ==32 || $dintip == 44 || $dintip == 45 || $dintip == 46 || $dintip == 48 || $dintip == 49 || $dintip == 52
-                || $dintip == 53 || $dintip ==56 || $dintip == 57 || $dintip == 221 || $dintip == 231 || $dintip == 271)
-            $indp = 5;
-        
-        return ['cod'=> $indp,'des'=>$desc];
+    private function determinarTipoPago($dintip){
+        $dt = DineroTipo::with( 'formaPago')->where('dintip', $dintip)->first();
+        return ['cod'=> $dt->formaPago->cod,'des'=>$dt->nomdt];
     }
 
     private function validarRuc($ruc, $doc, $dig){
@@ -438,7 +449,7 @@ class MakeArchivoFactura extends Command
     }
 
     private function writeTxt($cabecera,$detalles, $totales, $resumen, $delectronico, $fac, $timb, $linea_timbrado, 
-    $opeComercial, $datosReceptor, $datosFE, $condicionOperacion){
+    $opeComercial, $datosReceptor, $datosFE, $condicionOperacion, $formaPago, $itemsOpe, $precios ){
         Storage::disk('s4')->put($timb . '-'.$fac.'.txt', $cabecera);
         Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $detalles);
         Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $totales);
@@ -449,5 +460,8 @@ class MakeArchivoFactura extends Command
         Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $datosReceptor);
         Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $datosFE);
         Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $condicionOperacion);
+        Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $formaPago);
+        Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $itemsOpe);
+        Storage::disk('s4')->append($timb . '-'.$fac.'.txt', $precios);
     }
 }
