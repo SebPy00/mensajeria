@@ -12,6 +12,7 @@ use App\Console\Commands\EnviarMensajeInterno;
 use App\Console\Commands\PoblarDatos;
 use App\Console\Commands\PoblarTelefonosyMails;
 use App\Console\Commands\SendEmailsSolicitudPagaré;
+use App\Console\Commands\ValidarMensajesCommand;
 
 
 class Kernel extends ConsoleKernel
@@ -22,7 +23,8 @@ class Kernel extends ConsoleKernel
         PoblarDatos::class,
         SendEmailsSolicitudPagaré::class,
         PoblarTelefonosyMails::class,
-        EnviarMensajeInterno::class
+        EnviarMensajeInterno::class,
+        ValidarMensajesCommand::class
     ];
 
     /**
@@ -53,6 +55,10 @@ class Kernel extends ConsoleKernel
         //MENSAJERIA INTERNA
 
         $schedule->command('enviar:gw')->everyTwoHours();
+
+        //VALIDARMENSAJESCOMANDO - FORZOSO
+
+        $schedule->command('validar:mensajes')->hourly();
 
         //SOLICITUD DE DOCUMENTOS POR CORREO
 
