@@ -55,7 +55,7 @@ return [
 
         's4' => [
             'driver' => 'local',
-            'root' => storage_path('app/archivos'),
+            'root' => storage_path('Sepsa/APP-PROD/bin/Siedi/outbox-set-lote'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],

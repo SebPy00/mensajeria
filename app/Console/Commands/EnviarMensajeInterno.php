@@ -93,7 +93,8 @@ class EnviarMensajeInterno extends Command
                      //PRUEBA DE FUNCIONALIDAD
                     log::info('canal: ' . $canal['canal']);
                     log::info('fecha: ' . $canal['fecha']);
-                    if($ope) $this->insertaropeges($ope->ope, $ope->cli1, $canal['canal'], $d->nrotelefono, $lote->mensaje, $obs, $canal['fecha']);
+                    if($ope) $this->insertaropeges($ope->ope, $ope->cli1, $canal['canal'], $d->nrotelefono,
+                    $lote->mensaje, $obs, $canal['fecha'], $lote->usualta);
                     $contador ++;
                 }
             }
@@ -108,7 +109,7 @@ class EnviarMensajeInterno extends Command
         $lote->save();
     }
 
-    private function insertaropeges($ope, $cli, $canal, $tel, $mje, $obs, $date){
+    private function insertaropeges($ope, $cli, $canal, $tel, $mje, $obs, $date, $usualta){
         $hora= Carbon::now()->toTimeString();
         try{
             $go = new GestionesDelaOperacion();
@@ -120,7 +121,7 @@ class EnviarMensajeInterno extends Command
             $go->gesest = $canal;
             $go->gestel = $tel;
             $go->gestex = $mje;
-            $go->ges = 1;
+            $go->ges = $usualta;
             $go->usu = 1;
             $go->emp = 1;
             $go->obs = $obs;
