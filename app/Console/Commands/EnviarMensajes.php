@@ -49,7 +49,7 @@ class EnviarMensajes extends Command
     {
         $date = new Carbon('today');
         if($date->dayName != 'domingo'){
-            $hora= Carbon::now()->toTimeString();         
+            $hora= Carbon::now()->toTimeString();
 
             if ($hora >='07:00:00' && $hora <= '19:00:00') {
                 $this->obtenerLote();
@@ -59,7 +59,7 @@ class EnviarMensajes extends Command
         }
     }
 
-    public function obtenerLote(){ 
+    public function obtenerLote(){
 
         $fechaActual= Carbon::now()->toDateString();
 
@@ -85,7 +85,7 @@ class EnviarMensajes extends Command
             $this->lotesPendientesVencidos();
         }
     }
-    
+
     public function lotesPendientesVencidos(){
 
         //BUSCAR PENDIENTES CON FECHA VENCIDA
@@ -152,8 +152,8 @@ class EnviarMensajes extends Command
 
                 $contador = 0;
                 foreach ($detalle as $d) {
-                    
-                    $horaActual= Carbon::now()->toTimeString(); 
+
+                    $horaActual= Carbon::now()->toTimeString();
                     if ($horaActual >= $desde && $horaActual <= $hasta) {
                         if($contador < 100){
                             $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
@@ -174,18 +174,21 @@ class EnviarMensajes extends Command
                         break;
                     }
                 }
-               $this->verificarEnvioMensajes($lote->id);
+               $this->verificarEnvioMensajes($lote);
             }
         }catch (Exception $ex) {
             throw new Exception('ERROR 1: funcion procesarLoteMensajes - ' . $ex->getMessage());
         }
     }
 
-    public function verificarEnvioMensajes($id){
-        $estado = $this->getLoteEnProceso($id);
+    public function verificarEnvioMensajes($lote){
+        $estado = $this->getLoteEnProceso($lote->id);
         if($estado){
-            log::info('Posponiendo verificación en 10 minutos');
-            VerificarEnvioMensajes::dispatch($id)->delay(now()->addMinutes(10));
+            // log::info('Posponiendo verificación en 10 minutos');
+            // VerificarEnvioMensajes::dispatch($lote->id)->delay(now()->addMinutes(10));
+            // CAMBIAMOS ESTADO DEL LOTE PORQUE EL JOB NO ESTÁ FUNCIONANDO
+            $lote->idestado = 7; //A VERIFICAR
+            $lote->save();
         }else{
             log::info('no disponible para verificaar');
         }
@@ -211,7 +214,7 @@ class EnviarMensajes extends Command
         if(!empty($listaNegra)){
             $d->enviado = 4; //nro en la lista negra
             $d->save();
-        }else{ 
+        }else{
             if( $area != 3){ // si el area no es servicios
                 $cliente = $this->verificarCliente($d->ci);
                 if(empty($cliente)){
@@ -262,7 +265,7 @@ class EnviarMensajes extends Command
 
         if($categoria == 2) { //chatbot
             $bot = explode("NROCLI", $sms);
-            $mje = $bot[0].$cliente->cli.$bot[1]; 
+            $mje = $bot[0].$cliente->cli.$bot[1];
             $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
             '&message='.$mje .'&msisdn='.$nro;
         }else{
@@ -275,13 +278,13 @@ class EnviarMensajes extends Command
     public function estructuraMensajeDos( $mensaje, $nro, $categoria, $cliente){
         if($categoria == 2) { //chatbot
             $bot = explode("NROCLI", $mensaje);
-            $mje = $bot[0].$cliente->cli.$bot[1]; 
+            $mje = $bot[0].$cliente->cli.$bot[1];
             $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
             '&message='.$mje .'&msisdn='.$nro;
         }else{
             $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
             '&message='.$mensaje .'&msisdn='.$nro;
-        }      
+        }
         return $url;
     }
 

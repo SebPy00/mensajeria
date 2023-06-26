@@ -18,6 +18,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Route::get('/maketxt/{nrofactura}', function ($nrofactura) {
+//     return '<h1>factura: ' . $nrofactura . '</h1>';
+// });
+
 // Route::get('/excel', function ($codEntidad, $tipoDoc) {
 //     //return Excel::download(new SolicitudPagaresPendientesExport($codEntidad), 'pagares_pendientes.xlsx');
 //     return Excel::store(new SolicitudPagaresPendientesExport($codEntidad, $tipoDoc), 'pagares_pendientes.xlsx', 's4');

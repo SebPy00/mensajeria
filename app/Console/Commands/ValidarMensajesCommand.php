@@ -1,59 +1,73 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
 use App\Models\EnvioMensajes;
 use App\Models\EnvioMensajesDetalle;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class VerificarEnvioMensajes implements ShouldQueue
+class ValidarMensajesCommand extends Command
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'validar:mensajes';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Create a new command instance.
      *
      * @return void
      */
-    protected int $id;
-    //public $tries = 5;
-    public $timeout = 7200;
-    public function __construct($id)
-    {   
-        $this->id = $id;
-        log::info('ID lote recibido en verificación:'.$id);
+    public function __construct()
+    {
+        parent::__construct();
     }
 
     /**
-     * Execute the job.
+     * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {
         try{
-            Log::info("----Comienza verificación del Lote ----:" . $this->id);
-            $lote = $this->cambiarEstadoLote();
-
-            if($lote) $this->getMensajesDespachados();
             
+            $id = $this->getLoteAverificar();
+            if($id) {
+                Log::info("COMIENZA VERIFICACION DE MENSAJES LOTE " . $id);
+                $this->cambiarEstadoLote($id);
+                $this->getMensajesDespachados($id);
+            }         
         }catch (Exception $ex) {
             throw new Exception('Error verificacion 1: '.$ex->getMessage());
         }
     }
-    
-    public function cambiarEstadoLote(){
+
+    private function getLoteAverificar()
+    {
+        $lote = EnvioMensajes::where('idestado', 7)->orderBy('id', 'asc')->first();
+        $res = 0;
+        if ($lote)  $res = $lote->id;
+
+        return $res;
+    }
+
+    public function cambiarEstadoLote($id){
         try {
-            $cab = EnvioMensajes::where('id', $this->id)->where('idestado', '!=', 5)->first();
+            $cab = EnvioMensajes::where('id', $id)->where('idestado', '!=', 5)->first();
             
             if($cab){
                 $cab->idestado = 6; // verificando
@@ -66,12 +80,11 @@ class VerificarEnvioMensajes implements ShouldQueue
             throw new Exception('Error verificacion 2: '. $ex->getMessage());
             return false;
         }
-        
     }
 
-    public function getMensajesDespachados(){
+    public function getMensajesDespachados($id){
         try {
-            $dt = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado',3)->get();
+            $dt = EnvioMensajesDetalle::where('idenviomensaje', $id)->where('enviado',3)->get();
             $queue = 0;
             $error = 0;
             
@@ -91,26 +104,25 @@ class VerificarEnvioMensajes implements ShouldQueue
             log::info('Verificamos '.$error . ' mensajes con errores');
             log::info('Verificamos '.$queue . ' mensajes que siguen en cola');
 
-            $this->cambiarEstadoVerificacion();
+            $this->cambiarEstadoVerificacion($id);
             
         } catch (Exception $ex) {
             throw new Exception('Error verificacion 3: '.$ex->getMessage());
         }
     }
-
-    public function cambiarEstadoVerificacion(){
+    public function cambiarEstadoVerificacion($id){
         
-        $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $this->id)->where('enviado', 2)
+        $noenviado = EnvioMensajesDetalle::where('idenviomensaje', $id)->where('enviado', 2)
         ->where('intentos', '<', 3)->first();
         
         if($noenviado){
             log::info('pasa a pendiente');
-            $cab = EnvioMensajes::where('id', $this->id)->first();
+            $cab = EnvioMensajes::where('id', $id)->first();
             $cab->idestado = 1; // pasa a pendiente
             $cab->save();
         }else{
             log::info('pasa a procesado');
-            $cab = EnvioMensajes::where('id', $this->id)->first();
+            $cab = EnvioMensajes::where('id', $id)->first();
             $cab->idestado = 3; // pasa a estado procesado - cabecera
             $cab->save();
         }
@@ -142,17 +154,4 @@ class VerificarEnvioMensajes implements ShouldQueue
             return 'ERROR';
         }
     }
-    public function retryUntil()
-    {
-        // will keep retrying, by backoff logic below
-        // until 24 hours from first run.
-        // After that, if it fails it will go
-        // to the failed_jobs table
-        return now()->addHours(24);
-    }
-
-    public function backoff()
-    {
-        return [7200, 7200, 7200, 7200, 7200, 10800 ];
-    } 
 }

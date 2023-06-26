@@ -12,7 +12,11 @@ use App\Console\Commands\EnviarMensajeInterno;
 use App\Console\Commands\PoblarDatos;
 use App\Console\Commands\PoblarTelefonosyMails;
 use App\Console\Commands\SendEmailsSolicitudPagaré;
-
+use App\Console\Commands\ValidarMensajesCommand;
+use App\Console\Commands\VerificarEstadoFE;
+use App\Console\Commands\MakeArchivoFactura;
+use App\Console\Commands\GenerarNotaCreditoDE;
+use App\Console\Commands\VeridicarEstadoNE;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,7 +26,13 @@ class Kernel extends ConsoleKernel
         PoblarDatos::class,
         SendEmailsSolicitudPagaré::class,
         PoblarTelefonosyMails::class,
-        EnviarMensajeInterno::class
+        EnviarMensajeInterno::class,
+        ValidarMensajesCommand::class,
+        VerificarEstadoFE::class,
+        MakeArchivoFactura::class,
+        GenerarNotaCreditoDE::class,
+        VeridicarEstadoNE::class
+
     ];
 
     /**
@@ -54,12 +64,41 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('enviar:gw')->everyTwoHours();
 
+        //VALIDARMENSAJESCOMANDO - FORZOSO
+
+        $schedule->command('validar:mensajes')->hourly();
+
         //SOLICITUD DE DOCUMENTOS POR CORREO
 
         $schedule->command('enviar:correos')
         ->weekly()
         ->tuesdays()
         ->at('08:00');
+
+        //GENERAR TXT FACTURAS
+        // $schedule->command('factura:txt')
+        // ->daily()
+        // ->at('08:30');
+
+        // $schedule->command('factura:txt')
+        // ->daily()
+        // ->at('09:30');
+
+        // $schedule->command('factura:txt')
+        // ->daily()
+        // ->at('10:30');
+
+        // $schedule->command('factura:txt')
+        // ->daily()
+        // ->at('11:30');
+
+        //GENERAR NOTA CREDITO
+        
+        //$schedule->command('notacredito:txt')->everyThirtyMinutes();
+
+        //VERIFICAR ESTADOS DE FACTURAS Y NOTAS
+        // $schedule->command('verificar:fe')->everyTenMinutes();
+        // $schedule->command('verificar:ne')->everyTenMinutes();
 
         // POBLAR TABLA DE DATOS PERSONALES, LABORALES, MAILS, TELEFONOS - DOMINGOS
         if($date->dayName == 'domingo'){
