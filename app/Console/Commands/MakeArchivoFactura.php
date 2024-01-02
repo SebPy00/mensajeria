@@ -68,15 +68,15 @@ class MakeArchivoFactura extends Command
     private function obtenerFacturasMes($start, $end){
         log::info('obtenemos facturas del mes');
         $facturas = DB::Select(
-            "SELECT trim(fac) as fac, timb, timbfec, serie from fac where fec >= (:a) and fec <= (:b) 
+            "SELECT trim(fac) as fac, timb, timbfec, serie from fac where fec >= (:a) and fec <= (:b)
              and timb = 16470445
              and trim(fac)
              not in (select nro_factura from factura_electronica where idestadotxt != 6) and col = 1
-             group by fac, timb, timbfec, serie order by fac 
+             group by fac, timb, timbfec, serie order by fac
              --limit 10
-             ",['a'=> $start, 'b'=> $end]
+             ",['a'=> '2023-07-15', 'b'=> $end]
         );
-        
+
         if($facturas){
             foreach($facturas as $f){
                 $this->guardarEnFacturaElectronica($f->fac, $f->timb);
@@ -105,19 +105,19 @@ class MakeArchivoFactura extends Command
         $imp_10 = 0;
         $gra_5 = 0;
         $gra_10 = 0;
-                
+
         //necesito almacenar una vez
         $dintip = '';
         $cli = '';
         $moneda = 'PYG';
         $cotizacion = 1;
-        
+
         $rucSigesa = '80023587-8';
         $fecha = '';
-        
+
         $factura = Factura::with('cliente')->where('fac', $fac)->where('timb',$timb)->get();
         foreach($factura as $f){
-            
+
             if($contador ==  1){
                 $cli = $f->cliente;
                 $cabecera = $this->formarCabecera($f, $rucSigesa,  $cli);
@@ -128,8 +128,8 @@ class MakeArchivoFactura extends Command
                 $dintip =$f->dintip;
                 $camposIva = $this->camposIva($contador, $f->ivapor, $f->exe, ($f->can * $f->preuni));
                 if($f->mon == 1){
-                    $moneda = 'USD'; 
-                    $cotizacion = $f->cotiza == 1 ;
+                    $moneda = 'USD';
+                    $cotizacion = $f->cotizacion ;
                 }
                 $notificacion = $this->linea980_notificacion($contador);
                 $descAnt = $this->linea128_descuentosAnticipos($contador);
@@ -169,17 +169,24 @@ class MakeArchivoFactura extends Command
         $dReceptor =  $this->formarDatosReceptor($cli);
         $datosReceptor = $dReceptor['datosReceptor'];
         $datosFE = $this->camposFacturaElectronica($dintip);
-        $condicionOperacion = $this->condicionOperacion();
-        $formaPago = $this->formaPagoContado($dintip, $total,$moneda, $cotizacion);
+        $datosCondicion = $this->condicionOperacion($fac, $timb);
+        $condicionOperacion = $datosCondicion['linea'];
+        $condicion = $datosCondicion['condicion'];
+        if ($condicion == 1){
+            $formaPago = $this->formaPagoContado($dintip, $total,$moneda, $cotizacion);
+        }else{
+            $formaPago = $this->formaPagoCredito();
+        }
+
         $ctotales = $this->camposSubtotalesTotales();
         $infoAdicional = $this->linea180_informacionadicional($f->ope, $timb);
         $indicadorEnvio = $this->linea999_indicadorenvio();
-        $this->writeTxt($cabecera,$detalles, $totales, $resumen, $lineaDE, 
-                        $fac, $timb, $linea_timbrado, $opeComercial, $datosReceptor, 
+        $this->writeTxt($cabecera,$detalles, $totales, $resumen, $lineaDE,
+                        $fac, $timb, $linea_timbrado, $opeComercial, $datosReceptor,
                         $datosFE, $condicionOperacion, $formaPago, $camposCheque, $itemsOpe, $precios,
                         $camposIva, $ctotales, $infoAdicional, $notificacion, $descAnt, $indicadorEnvio);
 
-        $tipoEmision= 1; //fijo por el momento                
+        $tipoEmision= 1; //fijo por el momento
         $this->generarCDC($rucSigesa, $fac, $fecha, $tipoEmision, $datosDoc['codseguridad'], $timb);
     }
 
@@ -190,10 +197,10 @@ class MakeArchivoFactura extends Command
         $timFac = $f->timb.'-'.trim(str_replace("-","",$f->fac));
         $mon = 'PYG';
         if($f->mon == 1) $mon = 'USD';
-        
+
         //VALIDACION DE CONTRIBUYENTE
         $documento = $this->validarRuc(trim($cli->ruc), trim($cli->doc), trim($cli->docd));
-        
+
         $cab = [$linea,'INVOICE',$fechaHora,'ORIGINAL',$timFac,'',$rucSigesa,'RUC',
                     $mon,'','','','','','','','','','','','','',$documento,'RUC','',$rucSigesa,'RUC'
                ];
@@ -225,7 +232,7 @@ class MakeArchivoFactura extends Command
 
         $tot = [5,$total_neto,$imp_5+$imp_10,'VALUE_ADDED_TAX',$gra_5,$imp_5,5,'STANDARD_RATE','VALUE_ADDED_TAX',
             $gra_10,$imp_10,10,'STANDARD_RATE','VALUE_ADDED_TAX',0,0,0,'STANDARD_RATE',$total,'BASIC_NET',
-            'RECEIPT_OF_GOODS','MONTHS', //DAYS, WEEKS, MONTHS            
+            'RECEIPT_OF_GOODS','MONTHS', //DAYS, WEEKS, MONTHS
             ''
         ];
 
@@ -249,7 +256,7 @@ class MakeArchivoFactura extends Command
     }
 
     private function formarLineaDE($fac, $timb){
-        
+
         $doc_electronico = '';
         $linea = 100;
         $cod_seg = $this->generarCodSeguridad($fac, $timb);
@@ -268,7 +275,7 @@ class MakeArchivoFactura extends Command
     }
 
     private function formarCamposTimbrado($timbrado, $serie){
-        $t = $this->getDatosTimbrado($timbrado); 
+        $t = $this->getDatosTimbrado($timbrado);
         $timbrado = '';
 
         $linea = 101;
@@ -291,19 +298,19 @@ class MakeArchivoFactura extends Command
         //condicion del tipo de cambio
         $mon = 'PYG';
         $ctcambio = '';
-        
+
         $cotizacion = '';
         foreach($fact as $f){
-            if($f->mon == 1) 
+            if($f->mon == 1)
                 $mon = 'USD';
-                $cotizacion = $f->cotizacion; 
+                $cotizacion = $f->cotizacion;
         }
 
         if($mon != 'PYG') $ctcambio = 1;
 
-        //tipo de cambio 
+        //tipo de cambio
         $tcamb = '';
-        if($ctcambio == 1) $tcamb = $cotizacion; 
+        if($ctcambio == 1) $tcamb = $cotizacion;
 
         $impuesto = 1; //IVA SIEMPRE
         $anticipo = ''; //NO UTILIZAMOS
@@ -315,20 +322,20 @@ class MakeArchivoFactura extends Command
         }
 
         return $operacionComercial;
-    } 
+    }
 
     //REVISAR
     private function formarDatosReceptor($cliente){
         $datosReceptor = '';
         $linea = 103;
         $r = $this->validarRuc(trim($cliente->ruc), trim($cliente->doc), trim($cliente->docd));
-        $contribuyente = 2; //no contribuyente 
-        if($r != '') $contribuyente = 1; //contribuyente 
+        $contribuyente = 2; //no contribuyente
+        if($r != '') $contribuyente = 1; //contribuyente
         $tipo_operacion = $this->tipoOperacion($cliente->tipper, $cliente->doc);
-        $codPais = 'PRY';
+
         $tipoContribuyente = '';
         if($contribuyente == 1){
-            if($cliente->tipper ==  1 || $cliente->tipper == 0){ 
+            if($cliente->tipper ==  1 || $cliente->tipper == 0){
                 $tipoContribuyente = 1; //FISICA
             }elseif($cliente->tipper ==  2 || $cliente->tipper ==  3){
                 $tipoContribuyente = 2;  //JURIDICA
@@ -339,22 +346,28 @@ class MakeArchivoFactura extends Command
         $doc = '';
         if($contribuyente == 2) $doc = $cliente->doc;
         $razonSocial = utf8_encode(trim($cliente->nom )). ' ' . utf8_encode(trim($cliente->ape));
+        $nombreFantasia = '';
         $direccion = '';
-        $tel = ''; 
-        $cel = ''; 
+        if($tipo_operacion == 4) $direccion = 'Sin direccion';
+        $codPais = 'PRY';
+        if($tipo_operacion == 4) $codPais = 'ARG';
+        $tel = '';
+        $cel = '';
         $datosCorreo = Mail::where('cedula', $cliente->doc)->first();
-        $mail = ''; 
+        $mail = '';
         if(isset($datosCorreo->correo)) $mail = $datosCorreo->correo;
-        $codCli = ''; 
-        $nroCasa = ''; 
-        $codDep = ''; 
-        $distrito = ''; 
+        $codCli = '';
+        $nroCasa = '';
+        if($tipo_operacion == 4) $nroCasa = 555;
+        $codDep = '';
+        $distrito = '';
         $codCiu = '';
 
-        $opeC = [$linea, $contribuyente, $tipo_operacion, $codPais, $tipoContribuyente, $tipoDoc, $doc, $razonSocial, '', $direccion,
-                $tel, $cel, $mail, $codCli, '', $nroCasa, $codDep, $distrito, $codCiu]; 
+        $opeC = [$linea, $contribuyente, $tipo_operacion, $codPais, $tipoContribuyente,
+                $tipoDoc, $doc, $razonSocial, $nombreFantasia, $direccion,
+                $tel, $cel, $mail, $codCli, '', $nroCasa, $codDep, $distrito, $codCiu];
 
-        
+
         foreach($opeC as $o){
             $datosReceptor .=  $o . ';';
         }
@@ -366,12 +379,12 @@ class MakeArchivoFactura extends Command
         $linea = 104;
 
         $facElectronica = '';
-        
+
         $res = $this->determinarIndicadorPresencia($dintip);
 
         $indPresencia = $res['cod'];
         $descIndPrecencia = '';
-        if($indPresencia == 9)  $descIndPrecencia = $res['des']; 
+        if($indPresencia == 9)  $descIndPrecencia = $res['des'];
 
         $fec = [$linea,$indPresencia,$descIndPrecencia, ''];
 
@@ -383,9 +396,9 @@ class MakeArchivoFactura extends Command
     }
 
     private function camposCheque($nroDetalle, $factura){
-        
+
         $camposCheque = '';
-        
+
         $dt = DineroTipo::where('dintip', $factura->dintip)->first();
 
         $ch = [115, $nroDetalle, $factura->dindet, $dt->formapago ];
@@ -397,20 +410,31 @@ class MakeArchivoFactura extends Command
         return $camposCheque;
     }
 
-    private function condicionOperacion(){
+    private function condicionOperacion($fac, $timb){
         $linea = 112;
-        $conOpe = '';
-        
-        //1->CONTADO 2->CREDITO - SOLO EMITIMOS FACTURAS AL CONTADO
-        $condicion = 1; 
 
+        //1->CONTADO 2->CREDITO - SOLO EMITIMOS FACTURAS AL CONTADO
+        $condicion = $this->getCondicion($fac, $timb);
+        $conOpe = '';
         $co = [$linea, $condicion];
 
         foreach($co as $c){
             $conOpe .=  $c. ';';
         }
 
-        return $conOpe;
+        return ['linea'=>$conOpe, 'condicion'=> $condicion ];
+    }
+
+    private function getCondicion($fac, $timb){
+
+        $condicion = DB::Select(
+            "SELECT COALESCE(a.factip,1) as factip
+            FROM fac LEFT JOIN admmov a ON a.cpte=fac.fac AND a.timb=fac.timb
+            WHERE fac.fac=(:a) and fac.timb=(:b) LIMIT 1",
+            ['a' => $fac, 'b' =>$timb]) ;
+
+        return $condicion[0]->factip  ;
+
     }
 
     private function formaPagoContado($dintip, $monto, $moneda, $cambio){
@@ -431,15 +455,32 @@ class MakeArchivoFactura extends Command
         return $formaPago;
     }
 
+    private function formaPagoCredito(){
+        $formaPago = '';
+        $linea = 116;
+        $condOperacion = 1; //plazo: 1, cuota: 2
+        $plazoCredito = '1 mes';
+        $cantCuotas = '';
+        $montoEntrega = '';
+
+        $tp = [$linea,$condOperacion,$plazoCredito,$cantCuotas,$montoEntrega];
+
+        foreach($tp as $t){
+            $formaPago .=  $t. ';';
+        }
+
+        return $formaPago;
+    }
+
     private function itemsOperacion($linDet, $codInt){
         $itemsOpe = '';
         $linea = 118;
         $arancel = '';
-        $ncm = '';     
-        $dncpGral = '';  
-        $dncpEspc = '';    
-        $gtin = '';    
-        $codPais = '';    
+        $ncm = '';
+        $dncpGral = '';
+        $dncpEspc = '';
+        $gtin = '';
+        $codPais = '';
         $infoInt = '';
         $codRel = ''; //DETERMINAR 1->TOLERANCIA DE QUIEBRA 2->TOLERANCIA DE MERMA - opcional si 101.3 = 7 (no es el caso, es 1->fac electro)
         $cantQuiebra = ''; //obligatorio si se informa 118.10
@@ -486,7 +527,7 @@ class MakeArchivoFactura extends Command
                 $porcGravada = 100 - $por; // PORCETAJE DE GRAVADA DE IVA
             }
         }
-        
+
         $ci = [120,$linDet, $afectacionTributaria, $porcGravada];
 
         foreach($ci as $c){
@@ -504,7 +545,7 @@ class MakeArchivoFactura extends Command
         $descuento = 0;
         $anticipo = 0;
         $antGlobal = 0;
-        
+
         $dA = [$linea,$linDet,$descuento,$anticipo, $antGlobal];
 
         foreach($dA as $d){
@@ -522,7 +563,7 @@ class MakeArchivoFactura extends Command
         $comision = 0;
         $liqiva = 0;
         $redondeo = 'false';
-        
+
         $ct = [$linea, $descuento, $comision, $liqiva, $redondeo ];
 
         foreach($ct as $c){
@@ -547,9 +588,9 @@ class MakeArchivoFactura extends Command
     private function linea980_notificacion($linDet){
         $notificacion = '';
         $linea = '980';
-        $correo = 'anibarrola@sistemasygestiones.com.py';
+        $correo = 'ti@sistemasygestiones.com.py';
         $codNotificacion = 'RECHAZO_DTE';
-        
+
         $not = [$linea, $linDet, $codNotificacion, $correo];
         foreach($not as $n){
             $notificacion .=  $n . ';';
@@ -563,7 +604,7 @@ class MakeArchivoFactura extends Command
         $linea = '999';
         $envioSET = 'true';
         $envioEDI = 'false';
-        
+
         $ie = [$linea, $envioSET, $envioEDI];
         foreach($ie as $i){
             $indicadorEnvio .=  $i . ';';
@@ -571,7 +612,7 @@ class MakeArchivoFactura extends Command
 
         return $indicadorEnvio;
     }
-    
+
     private function determinarIndicadorPresencia($dintip){
         $dt = DineroTipo::with('indicadorPresencia')->where('dintip', $dintip)->first();
         return ['cod'=> $dt->indicadorPresencia->cod,'des'=>$dt->nomdt];
@@ -590,14 +631,14 @@ class MakeArchivoFactura extends Command
         }elseif($doc != '' && trim($dig) != ''){
             $r = $doc . '-' . $dig;
         }
-        
+
         return $r;
     }
 
     private function validarCedula($doc){
 
-        $res = 1; //ci paraguaya 
-  
+        $res = 1; //ci paraguaya
+
         //return false si empieza con letra - ci extranj.
         $d = is_numeric($doc[0]);
         if(!$d) $res = 3;
@@ -611,7 +652,7 @@ class MakeArchivoFactura extends Command
         // 2= B2C
         // 3= B2G (Cliente gubernamental)
         // 4= B2F (Esta última opción debe utilizarse solo en caso de servicios para empresas o personas físicas del exterior)
-        
+
         $valCed = $this->validarCedula($doc);
         $res = 2; //B2C
         if($tipper == 1 || $tipper == 0) $res = 2; //B2C
@@ -622,7 +663,7 @@ class MakeArchivoFactura extends Command
         return $res;
     }
 
-    
+
     private function guardarEnFacturaElectronica($nroFactura, $timbrado){
         log::info('Entra para guardar en tabla de control ' . $nroFactura);
 
@@ -633,14 +674,16 @@ class MakeArchivoFactura extends Command
             $f->nro_factura = $nroFactura;
             $f->idestadotxt = 1;
             $f->timbrado = $timbrado;
+            $f->txt = 1;
             $f->save();
         }else{
             $fac->idestadotxt = 1;
+            $fac->txt = 1;
             $fac->save();
         }
     }
 
-    private function writeTxt($cabecera,$detalles, $totales, $resumen, $delectronico, $fac, $timb, $linea_timbrado, 
+    private function writeTxt($cabecera,$detalles, $totales, $resumen, $delectronico, $fac, $timb, $linea_timbrado,
     $opeComercial, $datosReceptor, $datosFE, $condicionOperacion, $formaPago, $camposCheque , $itemsOpe, $precios,
      $camposIva, $ctotales, $infoAdicional, $notificacion, $descAnt, $indicadorEnvio){
         Storage::disk('s4')->put($timb . '-'.$fac.'.txt', $cabecera);
@@ -667,13 +710,14 @@ class MakeArchivoFactura extends Command
 
     private function generarCodSeguridad($fac, $timb){
         $cod = FacturaElectronica::where('nro_factura', $fac)->where('timbrado', $timb)->first();
-        
+
         if($cod->codseguridad != ''){
-            return $cod->codseguridad;
+            $codSeg = str_repeat(0, (9-strlen($cod->codseguridad))) . $cod->codseguridad;
+            return $codSeg;
         }else{
             $codigo = rand(1,999999999);
             $res = 0;
-    
+
             while($res == 0){
                 $codSeg = FECodigoSeguridad::where('codigo', $codigo)->first();
                 if($codSeg){
@@ -682,15 +726,15 @@ class MakeArchivoFactura extends Command
                     $res = 1;
                 }
             }
-    
+
             $this->guardarCodigo($codigo);
             $codigoSeguridad = str_repeat(0, (9-strlen($codigo))) . $codigo;
             $this->guardarCodigoFE($codigoSeguridad, $fac, $timb);
             return $codigoSeguridad;
-        }      
+        }
     }
 
-   
+
     private function guardarCodigo($codigo){
         $c = new FECodigoSeguridad();
         $c->codigo = $codigo;
@@ -699,7 +743,7 @@ class MakeArchivoFactura extends Command
 
     private function guardarCodigoFE($codigoSeguridad, $fac, $timb){
         $fc = FacturaElectronica::where('nro_factura', $fac)->where('timbrado', $timb)->first();
-        
+
         $fc->codseguridad = $codigoSeguridad;
         $fc->save();
     }
@@ -725,7 +769,7 @@ class MakeArchivoFactura extends Command
         $dV = DB::Select(
             "SELECT digito_verificador(:a)", ['a'=> $cdc]);
         return $dV[0]->digito_verificador;
-    }  
+    }
 
     private function guardarCDC($nrofac, $cdc, $timb){
         log::info('Cdc de la factura ' . $nrofac . ' :' .$cdc);
@@ -735,7 +779,7 @@ class MakeArchivoFactura extends Command
     }
 
     private function getDatosTimbrado($timb){
-        $t = Timbrado::where('timbrado', $timb)->first(); 
+        $t = Timbrado::where('timbrado', $timb)->first();
         return $t;
     }
 }

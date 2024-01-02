@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\VerificarEnvioMensajes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use App\Models\EnvioMensajes;
 use App\Models\EnvioMensajesDetalle;
@@ -81,7 +82,7 @@ class EnviarMensajes extends Command
             $lote->save();
             $this->procesarLoteMensajes($lote);
         }else{
-            //log::info('------------ Sin lotes pendientes de envío ------------');
+            //log::info('------------ Sin lotes pendientes de envío ----------a--');
             $this->lotesPendientesVencidos();
         }
     }
@@ -135,7 +136,7 @@ class EnviarMensajes extends Command
     public function procesarLoteMensajes($lote){
         try{
             $detalle = EnvioMensajesDetalle::where('idenviomensaje', $lote->id)
-            ->where('enviado', 2)->where('intentos', '<', 3)->get();
+            ->where('enviado', 2)->where('intentos', '<', 3)->orderBy('id', 'desc')->get();
 
             if($detalle){
                 log:info('Inicia recorrido para envio de mensajes');
@@ -147,32 +148,44 @@ class EnviarMensajes extends Command
                 $hasta = '18:00:00';
 
                 if($date->dayName == 'sábado'){
+                	//12:00
                     $hasta = '12:00:00';
                 }
 
                 $contador = 0;
+                $contador2 = 0;
                 foreach ($detalle as $d) {
-
-                    $horaActual= Carbon::now()->toTimeString();
-                    if ($horaActual >= $desde && $horaActual <= $hasta) {
-                        if($contador < 100){
-                            $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
-                            $contador +=1;
-                        }else{
-                            $estado = $this->verificarEstadoLote($lote->id);
-                            if(empty($estado)){
-                                $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
-                                $contador = 1;
-                            }else{
-                                break;
-                            }
-                        }
-                    }else{
-                        log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
-                        $lote->idestado = 4;
-                        $lote->save();
-                        break;
-                    }
+			try{
+		            $horaActual= Carbon::now()->toTimeString();
+		            if ($horaActual >= $desde && $horaActual <= $hasta) {
+		             	/*$contador2 +=1;
+		            	if ($contador2 == 100){
+		            		$contador2=1;
+		            		sleep(30);
+		            	} */                	
+		                if($contador < 100){
+		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                    $contador +=1;			    
+		                }else{        
+		                    sleep(30);                    
+		                    $estado = $this->verificarEstadoLote($lote->id);
+		                    if(empty($estado)){
+		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                        $contador = 1;
+		                    }else{
+		                        break;
+		                    }
+		                }
+		            }else{
+		                log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
+		                $lote->idestado = 4;
+		                $lote->save();
+		                break;
+		            }
+		 	}catch (Exception $ex) {
+			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
+			    sleep(30); 
+			}
                 }
                $this->verificarEnvioMensajes($lote);
             }
@@ -182,8 +195,8 @@ class EnviarMensajes extends Command
     }
 
     public function verificarEnvioMensajes($lote){
-        $estado = $this->getLoteEnProceso($lote->id);
-        if($estado){
+        if(isset($lote->id)){
+            $estado = $this->getLoteEnProceso($lote->id);
             // log::info('Posponiendo verificación en 10 minutos');
             // VerificarEnvioMensajes::dispatch($lote->id)->delay(now()->addMinutes(10));
             // CAMBIAMOS ESTADO DEL LOTE PORQUE EL JOB NO ESTÁ FUNCIONANDO
@@ -210,7 +223,7 @@ class EnviarMensajes extends Command
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
         $nro = '0'. $d->nrotelefono;
-        $listaNegra = $this->verificarListaNegra($nro);
+        $listaNegra = $this->verificarListaNegra($nro, $d->ci);
         if(!empty($listaNegra)){
             $d->enviado = 4; //nro en la lista negra
             $d->save();
@@ -255,7 +268,8 @@ class EnviarMensajes extends Command
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
-            throw new Exception('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());
+            log::info('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());    
+            //throw new Exception('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());
         }
     }
 
@@ -288,8 +302,19 @@ class EnviarMensajes extends Command
         return $url;
     }
 
-    public function verificarListaNegra($nro){
-        $listaNegra = ListaNegra::where('tel', $nro)->where('sms', true)->first();
+    public function verificarListaNegra($nro, $ci){
+        
+        $listaNegra = ListaNegra::where('tel', $nro)
+        ->where(function ($q) use ($ci) {
+            $q->orWhere('cedula', $ci); 
+            $q->orWhere('cedula', '0'); 
+        })
+        ->where('sms', true)->first();
+
+        // $listaNegra = DB::Select("SELECT * from lista_negra 
+        // where tel = (:a) and (cedula = (:b) or cedula = '0')",
+        // ['a'=> $nro,'b' => $ci]);
+
         return $listaNegra;
     }
 

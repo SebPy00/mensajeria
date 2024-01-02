@@ -52,7 +52,7 @@ class GenerarNotaCreditoDE extends Command
      */
     public function handle()
     {
-        log::info('Inicia recorrido de --tabla-- para generación de las facturas electrónicas');
+        log::info('Inicia recorrido de --tabla-- para generación de las notas de credito');
         //obtenemos fecha de inicio y fin del mes actual
 
         $start = Carbon::now()->startOfMonth()->toDateString();
@@ -63,14 +63,14 @@ class GenerarNotaCreditoDE extends Command
 
     private function obtenerNotasMes($start, $end){
         //$nc = NotaCreditoDTE::where('fecha', '>=', $start)->where('fecha', '<=', $end)->get();
-        
+
         $notas = DB::Select(
-            "SELECT id from nota_credito_dte where fecha >= (:a) and fecha <= (:b) 
-             and id not in (select notacreditoid from nota_electronica where idestadotxt != 6)  
+            "SELECT id from nota_credito_dte where fecha >= (:a) and fecha <= (:b)
+             and id not in (select notacreditoid from nota_electronica where idestadotxt != 6)
              --limit 1
-             ",['a'=> $start,'b' => $end]
+             ",['a'=> '2023-07-15','b' => $end]
         );
-        
+
         if($notas){
             foreach($notas as $n){
                 $nc = NotaCreditoDTE::where('id', $n->id)->first();
@@ -107,7 +107,7 @@ class GenerarNotaCreditoDE extends Command
         $anticipos = '';
         $notificacion  = '';
         $rucSigesa = '80023587-8';
-        
+
         foreach($det as $d){
             if($contador ==  1){
                 $cabecera = $this->linea1_cabecera($nota, $factura->cliente); //listo
@@ -146,7 +146,7 @@ class GenerarNotaCreditoDE extends Command
                         $opecomercial, $datosreceptor, $datosnc, $datosope, $precios, $iva, $anticipos,
                         $totalesant, $docasociado, $infoAdicional, $notificacion, $envio);
 
-        $tipoEmision= 1; //fijo por el momento 
+        $tipoEmision= 1; //fijo por el momento
         $this->generarCDC($rucSigesa, $nota, $tipoEmision, $de['codseguridad']);
     }
 
@@ -174,7 +174,7 @@ class GenerarNotaCreditoDE extends Command
         $dV = DB::Select(
             "SELECT digito_verificador(:a)", ['a'=> $cdc]);
         return $dV[0]->digito_verificador;
-    }  
+    }
 
     private function guardarCDC($nota, $cdc){
         log::info('Cdc de la nota ' . $nota->nro_nota . ' :' .$cdc);
@@ -192,7 +192,7 @@ class GenerarNotaCreditoDE extends Command
 
         $linea = 1;
         $textoFijoUno = 'DEBITCREDITADVICE';
-        $fechaHora = Carbon::parse($nota->fecha); 
+        $fechaHora = Carbon::parse($nota->fecha);
         $textoFijoDos = 'ORIGINAL';
         $nroDocumento = $nota->timbrado.'-'.trim(str_replace("-","",$nro_nota)); // TIMBRADO - N° NOTA
         $GLNCreador = ''; // opcional
@@ -204,14 +204,14 @@ class GenerarNotaCreditoDE extends Command
 
         //VALIDACION DE CONTRIBUYENTE
         $documento =  $this->validarRuc(trim($cli->ruc), trim($cli->doc), trim($cli->docd));
-        
+
         $fijoRuc = 'RUC';
         $GLNProveedor = ''; // opcional
         $rucProveedor = '80023587-8'; // se informa seguido del texto fijo RUC
 
         $cab = [$linea, $textoFijoUno, $fechaHora,
                 $textoFijoDos, $nroDocumento, $GLNCreador,
-                $moneda, $importeTotal, $indicadorMovimiento, 
+                $moneda, $importeTotal, $indicadorMovimiento,
                 $GLNCliente, $documento, $fijoRuc,
                 $GLNProveedor, $rucProveedor, $fijoRuc];
 
@@ -220,7 +220,7 @@ class GenerarNotaCreditoDE extends Command
         }
 
         return $cabecera;
-        
+
     }
 
     private function linea2_detalle($lineaDetalle, $nota, $detallenota, $factura){
@@ -233,10 +233,10 @@ class GenerarNotaCreditoDE extends Command
 
         $linea = 2;
         $indicadorMovimiento = 'CREDIT'; // fijo porque solo generamos notas de crédito
-        $codMotivoAviso = $motivo->codigo; 
-        $descripcionMotivo =utf8_encode($motivo->descripcion); 
+        $codMotivoAviso = $motivo->codigo;
+        $descripcionMotivo =utf8_encode($motivo->descripcion);
         $moneda = 'PYG'; // todas las notas se emiten en moneda paraguaya
-        $monto = intVal($detallenota->monto); 
+        $monto = intVal($detallenota->monto);
         $tipoDocumento = 'INVOICE'; // corresponde a Factura, fijo para las notas de crédito.
         $nroDocumentoFactura = $nota->facnro; //al que corresponde la nota
         $GLNCreador = ''; // opcional
@@ -257,7 +257,7 @@ class GenerarNotaCreditoDE extends Command
 
         $det = [$linea, $lineaDetalle, $indicadorMovimiento, $codMotivoAviso,
                 $descripcionMotivo, $moneda, $monto,
-                $tipoDocumento, $nroDocumentoFactura, $GLNCreador, 
+                $tipoDocumento, $nroDocumentoFactura, $GLNCreador,
                 $fechaFactura, $codigoInterno, $monedaSegunComprador,
                 $precioUnitarioSegunComprador, $monedaFactura, $precioUnitarioFactura,
                 $cantidadProducto, $unidadMedida, $idiomaObs,
@@ -287,7 +287,7 @@ class GenerarNotaCreditoDE extends Command
     }
 
     private function linea100_documentoElectronico($idnota){
-        
+
         $doc_electronico = '';
         $linea = 100;
         $cod_seg = $this->generarCodSeguridad($idnota);
@@ -308,7 +308,7 @@ class GenerarNotaCreditoDE extends Command
 
     private function generarCodSeguridad($idnota){
         $cod = NotaElectronica::where('notacreditoid', $idnota)->first();
-        
+
         if($cod->codseguridad != ''){
             return $cod->codseguridad;
         }else{
@@ -325,9 +325,9 @@ class GenerarNotaCreditoDE extends Command
             }
 
             //consultar si el código de seguridad puede ser repetible con el código que está en la factura
-            $this->guardarCodigoNota($codigo); 
+            $this->guardarCodigoNota($codigo);
             $codigoSeguridad = str_repeat(0, (9-strlen($codigo))) . $codigo;
-            $this->guardarCodigoNE($codigoSeguridad, $idnota);
+            $this->guardarCodigoFE($codigoSeguridad, $idnota);
             return $codigoSeguridad;
         }
 
@@ -335,7 +335,7 @@ class GenerarNotaCreditoDE extends Command
 
     private function guardarCodigoFE($codigoSeguridad, $idnota){
         $nc = NotaElectronica::where('notacreditoid', $idnota)->first();
-        
+
         $nc->codseguridad = $codigoSeguridad;
         $nc->save();
     }
@@ -351,9 +351,9 @@ class GenerarNotaCreditoDE extends Command
         $timb = $this->getDatosTimbrado($timbrado, $ser);
         $datosTimbrado = '';
         $linea = 101;
-        $fechaInicio = $timb->desfec;
+        $fechaInicio = $timb->inicio_set;
         $serie = '';
-        $tipoDocumentoElectronico = 5; //nota de crédito electrónico - fijo 
+        $tipoDocumentoElectronico = 5; //nota de crédito electrónico - fijo
 
         $timb = [$linea,$fechaInicio,$serie,$tipoDocumentoElectronico];
 
@@ -363,18 +363,18 @@ class GenerarNotaCreditoDE extends Command
 
        return $datosTimbrado;
     }
-    
+
     private function linea102_operacioncomercial($nota){
         $operacionComercial = '';
-        
+
         $linea = 102;
         $tipoTransaccionEmisor = ''; // a determinar
         $condicionTipoCambio = ''; //no informamos
-        if($nota->moneda == 1) 
+        if($nota->mon == 1)
             $condicionTipoCambio = 1;
 
-        //informamos cuando $moneda es diferente a 6900
-        $tipoCambio = ''; 
+        //informamos cuando $moneda es diferente a 6900->GS
+        $tipoCambio = '';
         if($condicionTipoCambio == 1) {
             $cotizacion = Cotizacion::where('fec', Carbon::parse($nota->fecha)->format('Ymd'))->first();
             $tipoCambio = intval($cotizacion->cotiza);
@@ -397,10 +397,10 @@ class GenerarNotaCreditoDE extends Command
         $receptorDE = '';
         $linea = 103;
         $r = $this->validarRuc(trim($cliente->ruc), trim($cliente->doc), trim($cliente->docd));
-        $naturalezaReceptor = 2; //no contribuyente 
-        if($r != '') $naturalezaReceptor = 1; //contribuyente 
+        $naturalezaReceptor = 2; //no contribuyente
+        if($r != '') $naturalezaReceptor = 1; //contribuyente
         $tipo_operacion = $this->tipoOperacion($cliente->tipper, $cliente->doc);
-        $codPais = 'PRY';// codigo fijo 
+        $codPais = 'PRY';// codigo fijo
         $tipoContribuyente = '';
         if($naturalezaReceptor == 1){
             if($cliente->tipper ==  1 || $cliente->tipper == 0){ //FISICA
@@ -419,7 +419,7 @@ class GenerarNotaCreditoDE extends Command
         $telReceptor = ''; // no informamos
         $celReceptor = ''; // no informamos
         $datosCorreo = Mail::where('cedula', $cliente->doc)->first();
-        $correoReceptor = ''; 
+        $correoReceptor = '';
         if(isset($datosCorreo->correo)) $correoReceptor = $datosCorreo->correo;
         $codCliente = ''; //no informamos
         $descripcionDocumento = '';
@@ -434,12 +434,12 @@ class GenerarNotaCreditoDE extends Command
                     $direccionReceptor,$telReceptor,$celReceptor,
                     $correoReceptor, $codCliente, $descripcionDocumento,$nroCasaReceptor,
                     $codDepartamentoReceptor,$codDistritoReceptor,$codCiudadReceptor];
-        
+
         foreach($receptor as $r){
             $receptorDE .=  $r . ';';
         }
 
-        return ['datosReceptor'=> $receptorDE,'contribuyente'=>$naturalezaReceptor];         
+        return ['datosReceptor'=> $receptorDE,'contribuyente'=>$naturalezaReceptor];
     }
 
     private function linea110_camposnotacredito($nota){
@@ -449,12 +449,12 @@ class GenerarNotaCreditoDE extends Command
         $codMotivoEmision = $nota->motivo_emision;
 
         $nota = [$linea,$codMotivoEmision];
-        
+
         foreach($nota as $n){
             $camposNotaCredito .=  $n . ';';
         }
 
-        return $camposNotaCredito;          
+        return $camposNotaCredito;
     }
 
     private function linea118_operacion($lineaDetalle, $detalle){
@@ -479,33 +479,33 @@ class GenerarNotaCreditoDE extends Command
         $ope = [$linea,$lineaDetalle,$codigoInterno,$partidaArancelaria,$nomenclaturaMC,
                 $codDNCPgeneral,$codDNCPespecifico,$codGTIN,$codPaisProducto,$informacionInteres,
                 $codDatos,$cantMerma,$porcMerma,$cdcAnticipo ];
-        
+
         foreach($ope as $o){
             $operacion .=  $o . ';';
         }
 
-        return $operacion;   
+        return $operacion;
     }
 
     private function linea119_precios($lineaDetalle, $detalle){
         $precios = '';
 
         $linea = 119;
-        $precioUnitarioProducto = intVal($detalle->monto); 
+        $precioUnitarioProducto = intVal($detalle->monto);
         $tipoCambioItem = ''; //no informamos
 
         $precio = [$linea,$lineaDetalle,$precioUnitarioProducto,$tipoCambioItem];
-        
+
         foreach($precio as $p){
             $precios .=  $p . ';';
         }
 
-        return $precios;   
+        return $precios;
 
     }
 
     private function linea120_iva($lineaDetalle, $detalle){
-        
+
         $camposIva = '';
         $afectacionTributaria = '';//1->gravado iva 2->exonerado 3->exento 4->grabado parcial
         $porcGravada = '';
@@ -515,9 +515,9 @@ class GenerarNotaCreditoDE extends Command
             $porcGravada = 100;
         }else if($detalle->porcentaje_iva= 0){
             $afectacionTributaria = 3;
-            $porcGravada = 0;          
+            $porcGravada = 0;
         }
-        
+
         $ci = [120,$lineaDetalle, $afectacionTributaria, $porcGravada];
 
         foreach($ci as $c){
@@ -535,7 +535,7 @@ class GenerarNotaCreditoDE extends Command
         $descuento = 0;
         $anticipo = 0;
         $antGlobal = 0;
-        
+
         $dA = [$linea,$linDet,$descuento,$anticipo, $antGlobal];
 
         foreach($dA as $d){
@@ -553,7 +553,7 @@ class GenerarNotaCreditoDE extends Command
         $comision = 0;
         $liqiva = 0;
         $redondeo = 'false';
-        
+
         $ct = [$linea, $descuento, $comision, $liqiva, $redondeo ];
 
         foreach($ct as $c){
@@ -561,7 +561,7 @@ class GenerarNotaCreditoDE extends Command
         }
 
         return $ctotales;
-    }  
+    }
 
     private function linea160_documentoasociado($nota){
         $documentoAsociado = '';
@@ -590,7 +590,7 @@ class GenerarNotaCreditoDE extends Command
             $documentoAsociado .=  $d . ';';
         }
 
-        return $documentoAsociado;   
+        return $documentoAsociado;
 
     }
 
@@ -609,9 +609,9 @@ class GenerarNotaCreditoDE extends Command
     private function linea980_notificacion($linDet){
         $notificacion = '';
         $linea = '980';
-        $correo = 'anibarrola@sistemasygestiones.com.py';
+        $correo = 'ti@sistemasygestiones.com.py';
         $codNotificacion = 'RECHAZO_DTE';
-        
+
         $not = [$linea, $linDet, $codNotificacion, $correo];
         foreach($not as $n){
             $notificacion .=  $n . ';';
@@ -625,7 +625,7 @@ class GenerarNotaCreditoDE extends Command
         $linea = '999';
         $envioSET = 'true';
         $envioEDI = 'false';
-        
+
         $ie = [$linea, $envioSET, $envioEDI];
         foreach($ie as $i){
             $indicadorEnvio .=  $i . ';';
@@ -635,7 +635,7 @@ class GenerarNotaCreditoDE extends Command
     }
 
     private function getDatosTimbrado($timb, $ser){
-        $t = Timbrado::where('timbrado', $timb)->where('ser', $ser)->first(); 
+        $t = Timbrado::where('timbrado', $timb)->where('ser', $ser)->first();
         return $t;
     }
 
@@ -647,7 +647,7 @@ class GenerarNotaCreditoDE extends Command
         }elseif($doc != '' && trim($dig) != ''){
             $r = $doc . '-' . $dig;
         }
-        
+
         return $r;
     }
 
@@ -658,7 +658,7 @@ class GenerarNotaCreditoDE extends Command
         // 2= B2C
         // 3= B2G (Cliente gubernamental)
         // 4= B2F (Esta última opción debe utilizarse solo en caso de servicios para empresas o personas físicas del exterior)
-        
+
         $valCed = $this->validarCedula($doc);
         $res = 2; //B2C
         if($tipper == 1 || $tipper == 0) $res = 2; //B2C
@@ -671,15 +671,15 @@ class GenerarNotaCreditoDE extends Command
 
     private function validarCedula($doc){
 
-        $res = 1; //ci paraguaya 
-  
+        $res = 1; //ci paraguaya
+
         //return false si empieza con letra - ci extranj.
         $d = is_numeric($doc[0]);
         if(!$d) $res = 3;
         return $res;
     }
 
-    private function writeTxt($nota, $cabecera, $detalle, $resumen, $documentoElectronico, $timbrado, 
+    private function writeTxt($nota, $cabecera, $detalle, $resumen, $documentoElectronico, $timbrado,
     $opecomercial, $datosreceptor, $datosnc, $datosope, $precios, $iva, $anticipos, $totalesant, $docasociado, $infoAdicional, $notificacion, $envio){
 
         Storage::disk('s4')->put('NC-'.$nota->timbrado. '-'.$nota->nro_nota.'.txt', $cabecera);
@@ -707,7 +707,7 @@ class GenerarNotaCreditoDE extends Command
 
 // create table nota_electronica(
 // 	id serial primary key,
-// 	notacreditoid BIGINT, 
+// 	notacreditoid BIGINT,
 // 	created_at TIMESTAMP WITHOUT TIME ZONE,
 // 	updated_at TIMESTAMP WITHOUT TIME ZONE,
 // 	cdc character varying(44),

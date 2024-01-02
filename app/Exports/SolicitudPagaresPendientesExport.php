@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Illuminate\Support\Facades\Log;
 use App\Models\Pagare;
 use Carbon\Carbon;
-ini_set('memory_limit', '-1'); 
+ini_set('memory_limit', '-1');
 
 class SolicitudPagaresPendientesExport implements FromCollection, WithHeadings,
 WithEvents, ShouldAutoSize, WithStyles

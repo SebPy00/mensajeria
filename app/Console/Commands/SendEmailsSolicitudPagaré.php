@@ -49,10 +49,10 @@ class SendEmailsSolicitudPagaré extends Command
         log::info('INICIO DE ENVÍO DE MAILS');
 
         $enviarCorreo = DB::Select(
-            "SELECT 
+            "SELECT
                 fe.id,
-                c.codemp, 
-                c.nomcodemp, 
+                c.codemp,
+                c.nomcodemp,
                 f.descripcion,
                 f.dias,
                 (date(now()) - date(fe.fecha_ult_correo)) as diasTranscurridos
@@ -60,21 +60,21 @@ class SendEmailsSolicitudPagaré extends Command
             join frecuencia f on f.id = fe.idfrecuencia
             where (date(now()) - date(fe.fecha_ult_correo)) >= f.dias
             order by fe.id asc") ;
-        
+
         if($enviarCorreo){
-           
+
             foreach($enviarCorreo as $enviar ){
-                
+
                 $mails = EmpresaMail::with('tipo')->where('codemp', $enviar->codemp)->get();
-                
+
                 if($mails){
-                    
+
                     foreach($mails as $mail){
-                        
+
                         $this->guardarReporte($enviar->codemp, $enviar->nomcodemp, $mail->idtipo, $mail->tipo->descripcion );
                         Mail::to($mail->email)->send(new SolicitudPagareMail
                         ($enviar->nomcodemp, 'SolicitudPagaresPendientes_'. $enviar->nomcodemp .'_'.$mail->tipo->descripcion . '.xlsx'));
-                    
+
                     }
                 }
 
@@ -90,7 +90,7 @@ class SendEmailsSolicitudPagaré extends Command
 
         log::info('tipodoc: '.$tipoDocumento);
         return Excel::store(new SolicitudPagaresPendientesExport($codEntidad, $tipoDocumento),
-            'SolicitudPagaresPendientes_'. $nomEntidad .'_'.$descripcion. '.xlsx', 's4'
+            'SolicitudPagaresPendientes_'. $nomEntidad .'_'.$descripcion. '.xlsx', 's5'
         );
 
     }

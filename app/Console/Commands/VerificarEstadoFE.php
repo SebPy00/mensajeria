@@ -50,15 +50,15 @@ class VerificarEstadoFE extends Command
 
     private function getFacturas(){
         $facturas = DB::Select(
-            "SELECT trim(nro_factura) as nro_factura,  timbrado, cdc from factura_electronica 
-            where  idestadotxt = 1 order by id desc limit 100"
+            "SELECT trim(nro_factura) as nro_factura,  timbrado, cdc, txt from factura_electronica 
+             where  idestadotxt = 1 order by id desc limit 100"
         );
         
         if($facturas){
             foreach($facturas as $f){
                 try{
                     if($f->nro_factura != '' && $f->timbrado != ''  && $f->cdc != '')
-                        $this->verificarEstado($f->nro_factura, $f->timbrado, $f->cdc);
+                        $this->verificarEstado($f->nro_factura, $f->timbrado, $f->cdc, $f->txt);
                 }catch(Exception $ex) {
                     $pref = 'error en verificación de factura => ';
                     throw new Exception( $pref . $ex->getMessage());
@@ -67,13 +67,18 @@ class VerificarEstadoFE extends Command
         }
     }
 
-    private function verificarEstado($fac, $timb, $cdc){
+    private function verificarEstado($fac, $timb, $cdc, $txt){
         
-        $nombrearchivo = $timb . '-' . $fac . '.txt';
+        if($txt){
+            $nombrearchivo = $timb . '-' . $fac . '.txt';
+        }else{
+            $nombrearchivo = $timb . '-' . $fac . '.xml';
+        }
+        
         $url = env('DIR_SEIDI_STATUS'). $cdc . '/'. $nombrearchivo;
         $client = new Client;
         try {
-            log::info($url);
+            //log::info($url);
             $response = $client->get($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {

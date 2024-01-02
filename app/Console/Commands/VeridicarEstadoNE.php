@@ -67,7 +67,7 @@ class VeridicarEstadoNE extends Command
         $url = env('DIR_SEIDI_STATUS'). $nota->cdc . '/'. $nombrearchivo;
         $client = new Client;
         try {
-            log::info($url);
+            //log::info($url);
             $response = $client->get($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {

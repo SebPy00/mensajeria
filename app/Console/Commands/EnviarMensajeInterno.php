@@ -56,7 +56,7 @@ class EnviarMensajeInterno extends Command
 
         $lote = EnvioMensajes::where('fechaenvio', '<=', $fechaActual)
         ->where('fecha_envio_hasta', '>=', $fechaActual)
-        ->where('tipo', 3 ) 
+        ->where('tipo', 3 )
         ->where('aprobado', 1)
         ->where('idestado', 1)
         ->orderBy('id', 'asc')->first();
@@ -66,7 +66,7 @@ class EnviarMensajeInterno extends Command
             $this->procesarLote($lote);
         }
     }
-    
+
     private function procesarLote($lote){
         try{
             $detalle = EnvioMensajesDetalle::where('idenviomensaje', $lote->id)->get();
@@ -78,15 +78,19 @@ class EnviarMensajeInterno extends Command
                // log:info('Inicia recorrido para inserción de opeges');
                 foreach ($detalle as $d){
                     $ope = Operacion::whereRelation('cliente', 'doc', $d->ci)->first();
-                    
-                    //cada 500 inserciones vamos consultando de vuelta el canal 
-                    if($contador >= 500){ 
+
+                    //cada 500 inserciones vamos consultando de vuelta el canal
+                    if($contador >= 500){
                         $canal = $this->determinarCanalFecha($lote->idcategoriamensaje);
                         $contador = 0;
                     }
 
+                    $mensaje = $lote->mensaje;
+
                     if($lote->idcategoriamensaje == 2){
                         $obs ='ChatBot ' . $lote->observacion;
+                        $bot = explode("NROCLI", $mensaje);
+                        $mensaje = $bot[0].$ope->cli1.$bot[1];
                     }elseif($lote->idcategoriamensaje == 4){
                         $obs ='Autogestor ' . $lote->observacion;
                     }
@@ -94,7 +98,7 @@ class EnviarMensajeInterno extends Command
                     log::info('canal: ' . $canal['canal']);
                     log::info('fecha: ' . $canal['fecha']);
                     if($ope) $this->insertaropeges($ope->ope, $ope->cli1, $canal['canal'], $d->nrotelefono,
-                    $lote->mensaje, $obs, $canal['fecha'], $lote->usualta);
+                    $mensaje, $obs, $canal['fecha'], $lote->usualta);
                     $contador ++;
                 }
             }
@@ -110,6 +114,14 @@ class EnviarMensajeInterno extends Command
     }
 
     private function insertaropeges($ope, $cli, $canal, $tel, $mje, $obs, $date, $usualta){
+        log::info('ingreso a guardar');
+        log::info($ope);
+        log::info($cli);
+        log::info($canal);
+        log::info($tel);
+        log::info($mje);
+        log::info($date);
+        log::info($usualta);
         $hora= Carbon::now()->toTimeString();
         try{
             $go = new GestionesDelaOperacion();
@@ -123,7 +135,6 @@ class EnviarMensajeInterno extends Command
             $go->gestex = $mje;
             $go->ges = $usualta;
             $go->usu = 1;
-            $go->emp = 1;
             $go->obs = $obs;
             $go->obsvocal = $mje;
             $go->save();
@@ -153,7 +164,7 @@ class EnviarMensajeInterno extends Command
             }
             return['canal'=> $res,'fecha'=>$date];
         }
-        
+
     }
 
     public function determinarNuevaFecha(){
@@ -169,22 +180,22 @@ class EnviarMensajeInterno extends Command
 
     public function getDisponibilidadCanal($day){
         $canal = DB::Select(
-        "SELECT '103'::int as canal, 
-            coalesce((SELECT count(*) FROM opeges 
-            WHERE gesest IN (103)  
-            AND fec = current_date + CAST('$day days' AS INTERVAL) group by gesest), 0)
-            union all			
-        SELECT '104'::int as canal, 
-            coalesce((SELECT count(*) FROM opeges 
-            WHERE gesest IN (104)  
+        "SELECT '103'::int as canal,
+            coalesce((SELECT count(*) FROM opeges
+            WHERE gesest IN (103)
             AND fec = current_date + CAST('$day days' AS INTERVAL) group by gesest), 0)
             union all
-        SELECT '106'::int as canal, 
-            coalesce((SELECT count(*) FROM opeges 
-            WHERE gesest IN (106)  
+        SELECT '104'::int as canal,
+            coalesce((SELECT count(*) FROM opeges
+            WHERE gesest IN (104)
+            AND fec = current_date + CAST('$day days' AS INTERVAL) group by gesest), 0)
+            union all
+        SELECT '106'::int as canal,
+            coalesce((SELECT count(*) FROM opeges
+            WHERE gesest IN (106)
             AND fec = current_date + CAST('$day days' AS INTERVAL) group by gesest), 0)
         ");
-        
+
         $res = 0;
         $contador = 0;
         if($canal){
