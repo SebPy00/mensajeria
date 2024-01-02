@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pagare extends Model
+class TipoPagoFE extends Model
 {
     use HasFactory;
-    protected $table = 'pagare';
-    protected $primaryKey = 'regnro';
+    protected $table = 'factura_electronica_forma_pago';
+    public $timestamps = false;
 }

@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pagare extends Model
+class GestionesDelaOperacion extends Model
 {
     use HasFactory;
-    protected $table = 'pagare';
+    protected $table = 'opeges';
     protected $primaryKey = 'regnro';
+    public $timestamps = false;
+    public $incrementing = false;
+    
 }

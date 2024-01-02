@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pagare extends Model
+class Barrio extends Model
 {
     use HasFactory;
-    protected $table = 'pagare';
-    protected $primaryKey = 'regnro';
+    protected $primaryKey = 'bar';
+    protected $table = 'paisbar';
+
 }

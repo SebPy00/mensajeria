@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pagare extends Model
+class MovimientosDeOperaciones extends Model
 {
     use HasFactory;
-    protected $table = 'pagare';
+    protected $table = 'opemov';
     protected $primaryKey = 'regnro';
 }
