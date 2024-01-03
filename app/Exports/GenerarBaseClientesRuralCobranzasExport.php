@@ -27,7 +27,12 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
         if (isset($clientes)) {
             foreach ($clientes as $cli){
                 $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->fecha_vto_cuota));
-                $fechaVtoCuota = $carbonFecha->format('d/m/Y');
+                $fechaVtoCuota = $carbonFecha->format('j/n/Y');
+                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->ult_fech_pago));
+                $fechaPago = $carbonFecha->format('j/n/Y');
+                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->fec_apertura));
+                $fechaApertura = $carbonFecha->format('j/n/Y');
+
                 $fila = [
                     'cod_cliente'=>trim($cli->cod_cliente),
                     'nro_documento'=>trim($cli->nro_documento),
@@ -58,10 +63,10 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
                     'monto_mora'=>'',
                     'monto_cuota'=>trim($cli->monto_cuota),
                     'fecha_vto_cuota'=>$fechaVtoCuota,
-                    'ult_fech_pago'=>trim($cli->ult_fech_pago),
+                    'ult_fech_pago'=>$fechaPago,
                     'total_deuda'=>trim($cli->total_deuda),
                     'estado'=>trim($cli->estado),
-                    'fec_apertura'=> trim($cli->fec_apertura),
+                    'fec_apertura'=> $fechaApertura,
                     'cat_riesgo'=>'',
                     'dato_extra1'=>trim($cli->dato_extra1),
                     'dato_extra2'=>trim($cli->dato_extra2),
