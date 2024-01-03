@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
-Use App\Exports\GenerarBaseClientesAlarmaPYExport;
-Use App\Exports\GenerarBaseCobrosAlarmaPY;
+Use App\Exports\GenerarBaseClientesRuralCobranzasExport;
+use App\Exports\GenerarBaseCobrosRuralCobranzas;
 
 class GenerarArchivosRuralCobranzas extends Command
 {
@@ -22,7 +22,7 @@ class GenerarArchivosRuralCobranzas extends Command
      *
      * @var string
      */
-    protected $description = 'Genera archivos de las bases de alarmas py';
+    protected $description = 'Genera archivos de las bases de rural cobranzas';
 
     /**
      * Create a new command instance.
@@ -44,7 +44,7 @@ class GenerarArchivosRuralCobranzas extends Command
         $fecha = Carbon::now()->format('Ymd');
 
         //Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmaslocal'.$fecha.'.csv', 's9');
-        Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmas'.$fecha.'.xlsx', 's9');
-        Excel::store(new GenerarBaseCobrosAlarmaPY(),  'basecobrosalarmassinope'.$fecha.'.xlsx', 's9');
+        Excel::store(new GenerarBaseClientesRuralCobranzasExport(),  'baseclientes'.$fecha.'.xlsx', 's9');
+        Excel::store(new GenerarBaseCobrosRuralCobranzas(),  'basecobros'.$fecha.'.xlsx', 's9');
     }
 }
