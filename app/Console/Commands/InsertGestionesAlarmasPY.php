@@ -82,11 +82,13 @@ class InsertGestionesAlarmasPY extends Command
 
     private function getGestiones($fecha){
         log::info('busca gestiones AlarmasPY');
-        // $fechaDesde = '2023-12-12 00:00:00'; //pruebas
-        // $fechaHasta = '2023-12-13 23:59:59'; //pruebas
 
-          $fechaDesde = $fecha . ' 00:00:00';
-          $fechaHasta = $fecha .' 23:59:59';
+        $fechaDesde = $fecha . ' 00:00:00';
+        $fechaHasta = $fecha .' 23:59:59';
+
+        $fechaDesde = '2024-01-02 00:00:00'; //Usar para tener gestiones de dias anteriores
+        $fechaHasta = '2023-01-02 23:59:59'; //Usar para tener gestiones de dias anteriores
+
         $client = new Client();
         try {
             $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=AlarmasPY&param2='.$fechaDesde.'&param3='.$fechaHasta.'';
