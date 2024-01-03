@@ -66,41 +66,12 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
-
-        's6' => [
-            'driver' => 'local',
-            'root' => storage_path('ftp60/Base_Vinanzas/Gestiones'),
+	's6' => [
+	 'driver' => 'local',
+            'root' => storage_path('vinanzas'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
-
-        's7' => [
-            'driver' => 'local',
-            'root' => storage_path('reportes'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
-        ],
-	
-        's8' => [
-             'driver' => 'local',
-             'root' => storage_path('bancop/respuesta_sigesa'),
-             'url' => env('APP_URL').'/storage',
-             'visibility' => 'public',
-        ],
-
-	's9' => [
-            'driver' => 'local',
-            'root' => storage_path('ftp60/Base_AlarmasPy'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
-        ],
-
-	's10' => [
-	    'driver' => 'local',
-	    'root' => storage_path('vinanzas'),
-	    'url' => env('APP_URL').'/storage',
- 	    'visibility' => 'public',
-	],
     ],
 
     /*
