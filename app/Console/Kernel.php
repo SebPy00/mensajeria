@@ -25,6 +25,7 @@ use App\Console\Commands\InsertDatosClientesAlarmasPy; //ACTIVO
 use App\Console\Commands\InsertDatosCobrosAlarmasPY; //PENDIENTE
 use App\Console\Commands\InsertGestionesAlarmasPY; //ACTIVO
 use App\Console\Commands\GenerarArchivosAlarmasPY; //ACTIVO
+use App\Console\Commands\GenerarArchivosRuralCobranzas; //ACTIVO
 //use App\Console\Commands\ReportesGestionesAlarmasPY; //ACTIVO
 use App\Models\ConfiguracionMensajes as ModelsConfiguracionMensajes;
 
@@ -49,7 +50,8 @@ class Kernel extends ConsoleKernel
         InsertDatosCobrosAlarmasPY::class,
         InsertGestionesAlarmasPY::class,
         GenerarArchivosAlarmasPY::class,
-  ];
+        GenerarArchivosRuralCobranzas::class,
+    ];
 
     /**
      * Define the application's command schedule.
@@ -79,12 +81,12 @@ class Kernel extends ConsoleKernel
         }
 
         //MENSAJERIA INTERNA
-	//CHATBOT Y AUTOGESTOR
+	    //CHATBOT Y AUTOGESTOR
        	 $schedule->command('enviar:gw')->everyTwoHours();
 
         //VALIDARMENSAJESCOMANDO - FORZOSO
 
-	$schedule->command('validar:mensajes')->hourly();
+	    $schedule->command('validar:mensajes')->hourly();
 
         //SOLICITUD DE DOCUMENTOS POR CORREO
 
@@ -140,16 +142,15 @@ class Kernel extends ConsoleKernel
         ////////////////////
 
         //CONSUMO DE API DE CLIENTE E INSERCION DE ASIGNACION EN BASE SIGESA
-	$schedule->command('clientes:alarmas')->daily()->at('7:00');
-	$schedule->command('cobros:alarmas')->daily()->at('7:30'); //ALARMASPY
+	    $schedule->command('clientes:alarmas')->daily()->at('7:00');
+	    $schedule->command('cobros:alarmas')->daily()->at('7:30'); //ALARMASPY
         //GENERACION DE ARCHIVOS DE BASE PARA SERVICIOS
-  	$schedule->command('generar:alarmaspy')->daily()->at('7:50'); //ALARMASPY
+  	    $schedule->command('generar:alarmaspy')->daily()->at('7:50'); //ALARMASPY
         //INSERTAR GESTIONES CLIENTES EN BASE SIGESA DESDE NEOTEL
     	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:30');
-  
 
-
-  }
+        $schedule->command('generar:ruralcobranzas')->daily()->at('7:58'); //RuralCobranzas
+    }
 
     /**
      * Register the commands for the application.

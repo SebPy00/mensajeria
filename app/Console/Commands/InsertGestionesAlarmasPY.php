@@ -83,7 +83,7 @@ class InsertGestionesAlarmasPY extends Command
     private function getGestiones($fecha){
         log::info('busca gestiones AlarmasPY');
 
-        $fechaDesde = $fecha . ' 00:00:00';
+        $fechaDesde = $fecha .' 00:00:00';
         $fechaHasta = $fecha .' 23:59:59';
 
         //$fechaDesde = '2024-01-02 00:00:00'; //Usar para tener gestiones de dias anteriores
