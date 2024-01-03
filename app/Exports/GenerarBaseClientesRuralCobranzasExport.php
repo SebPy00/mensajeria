@@ -26,6 +26,8 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
 
         if (isset($clientes)) {
             foreach ($clientes as $cli){
+                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->fecha_vto_cuota));
+                $fechaVtoCuota = $carbonFecha->format('d/m/Y');
                 $fila = [
                     'cod_cliente'=>trim($cli->cod_cliente),
                     'nro_documento'=>trim($cli->nro_documento),
@@ -55,7 +57,7 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
                     'cuotas_pend'=>trim($cli->cuotas_pend),
                     'monto_mora'=>'',
                     'monto_cuota'=>trim($cli->monto_cuota),
-                    'fecha_vto_cuota'=>trim($cli->fecha_vto_cuota),
+                    'fecha_vto_cuota'=>$fechaVtoCuota,
                     'ult_fech_pago'=>trim($cli->ult_fech_pago),
                     'total_deuda'=>trim($cli->total_deuda),
                     'estado'=>trim($cli->estado),
