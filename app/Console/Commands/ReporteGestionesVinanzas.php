@@ -28,7 +28,7 @@ class ReporteGestionesVinanzas extends Command
 
         // Genera y almacena el archivo CSV de forma asíncrona
          Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'. '.csv', 's6');
-	// Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'. '.csv', 's10');
+	    // Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'. '.csv', 's10');
 
         // Mueve el archivo después de almacenarlo
         $this->moverArchivo($fecha);
