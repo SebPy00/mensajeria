@@ -8,14 +8,14 @@ use Carbon\Carbon;
 Use App\Exports\GenerarBaseClientesAlarmaPYExport;
 Use App\Exports\GenerarBaseCobrosAlarmaPY;
 
-class GenerarArchivosAlarmasPY extends Command
+class GenerarArchivosRuralCobranzas extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'generar:alarmaspy';
+    protected $signature = 'generar:ruralcobranzas';
 
     /**
      * The console command description.
