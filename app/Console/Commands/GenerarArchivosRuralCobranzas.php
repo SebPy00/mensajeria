@@ -44,7 +44,7 @@ class GenerarArchivosRuralCobranzas extends Command
         $fecha = Carbon::now()->format('Ymd');
 
         //Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmaslocal'.$fecha.'.csv', 's9');
-        Excel::store(new GenerarBaseClientesRuralCobranzasExport(),  'baseclientes'.$fecha.'.xlsx', 's9');
-        Excel::store(new GenerarBaseCobrosRuralCobranzas(),  'basecobros'.$fecha.'.xlsx', 's9');
+        Excel::store(new GenerarBaseClientesRuralCobranzasExport(),  'baseclientes'.$fecha.'.xlsx', 's11');
+        Excel::store(new GenerarBaseCobrosRuralCobranzas(),  'basecobros'.$fecha.'.xlsx', 's11');
     }
 }
