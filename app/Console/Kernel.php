@@ -149,7 +149,7 @@ class Kernel extends ConsoleKernel
         //INSERTAR GESTIONES CLIENTES EN BASE SIGESA DESDE NEOTEL
     	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:30');
 
-        $schedule->command('generar:ruralcobranzas')->daily()->at('15:42'); //RuralCobranzas
+        $schedule->command('generar:ruralcobranzas')->daily()->at('7:58'); //RuralCobranzas
     }
 
     /**
