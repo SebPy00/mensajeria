@@ -146,10 +146,9 @@ class Kernel extends ConsoleKernel
 	    $schedule->command('cobros:alarmas')->daily()->at('7:30'); //ALARMASPY
         //GENERACION DE ARCHIVOS DE BASE PARA SERVICIOS
   	    $schedule->command('generar:alarmaspy')->daily()->at('7:40'); //ALARMASPY
+        $schedule->command('generar:ruralcobranzas')->daily()->at('7:55'); //RuralCobranzas
         //INSERTAR GESTIONES CLIENTES EN BASE SIGESA DESDE NEOTEL
     	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:30');
-
-        $schedule->command('generar:ruralcobranzas')->daily()->at('7:55'); //RuralCobranzas
     }
 
     /**
