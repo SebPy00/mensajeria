@@ -27,25 +27,27 @@ class GenerarBaseCobrosRuralCobranzas implements FromCollection, WithHeadings
 
         if (isset($cobros)) {
             foreach ($cobros as $cob){
-                    $fila = [
-                        'Numero Documento'=> $cob->nrodocumento,
-                        'Codigo Cliente DET3'=> $cob->cod_cliente,
-                        'Cliente DET3'=> '',
-                        'Operacion DET3'=> $cob->operacion,
-                        'Cartera DET3'=> $cob->cartera,
-                        'Saldo DET3'=> $cob->saldo,
-                        'Fecha Pago DET3'=> $cob->fec_pago,
-                        'Monto Pagado DET3'=> $cob->mon_pagado,
-                        'Numero Cuota DET3'=> $cob->nro_cuota,
-                        'Tipo Operacion DET3'=> $cob->tip_operacion,
-                        'Producto DET3'=> $cob->producto,
-                        'Segmento DET3'=>'',
-                        'Numero Documento DET3'=> $cob->nro_documento,
-                        'Cotizacion del Dolar DET3'=> $cob->cotizacion,
-                        'Dias Mora DET3'=> $cob->dias_mora,
-                        'Tipo Pago DET3'=> $cob->tipo_pago
-                    ];
-                    $lista[]= $fila;
+                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cob->fec_pago));
+                $fechaPago = $carbonFecha->format('j/n/Y');
+                $fila = [
+                    'Numero Documento'=> $cob->nrodocumento,
+                    'Codigo Cliente DET3'=> $cob->cod_cliente,
+                    'Cliente DET3'=> '',
+                    'Operacion DET3'=> $cob->operacion,
+                    'Cartera DET3'=> $cob->cartera,
+                    'Saldo DET3'=> $cob->saldo,
+                    'Fecha Pago DET3'=> $fechaPago,
+                    'Monto Pagado DET3'=> $cob->mon_pagado,
+                    'Numero Cuota DET3'=> $cob->nro_cuota,
+                    'Tipo Operacion DET3'=> $cob->tip_operacion,
+                    'Producto DET3'=> $cob->producto,
+                    'Segmento DET3'=>'',
+                    'Numero Documento DET3'=> $cob->nro_documento,
+                    'Cotizacion del Dolar DET3'=> $cob->cotizacion,
+                    'Dias Mora DET3'=> $cob->dias_mora,
+                    'Tipo Pago DET3'=> $cob->tipo_pago
+                ];
+                $lista[]= $fila;
 
             }
         }
