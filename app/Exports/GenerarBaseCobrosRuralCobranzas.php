@@ -37,7 +37,7 @@ class GenerarBaseCobrosRuralCobranzas implements FromCollection, WithHeadings
                     'Cliente DET3'=> '',
                     'Operacion DET3'=> $cob->operacion,
                     'Cartera DET3'=> $cob->cartera,
-                    'Saldo DET3'=> $saldoFormateado,
+                    'Saldo DET3'=> trim($cob->saldo),
                     'Fecha Pago DET3'=> $fechaPago,
                     'Monto Pagado DET3'=> $cob->mon_pagado,
                     'Numero Cuota DET3'=> $cob->nro_cuota,
