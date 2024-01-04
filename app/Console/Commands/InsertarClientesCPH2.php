@@ -44,7 +44,7 @@ class InsertarClientesCPH2 extends Command
     {
         log::info('INICIA CONSUMO DE API PARA ACTUALIZACIÓN DE BASE DE CLIENTES CPH');
         $clientes = $this->getClientes();
-        $this->insertarClientes($clientes);
+        //$this->insertarClientes($clientes);
     }
 
     public function insertarClientes($clientes){
@@ -239,7 +239,7 @@ class InsertarClientesCPH2 extends Command
                 $res =  simplexml_load_string(str_replace("SOAP-ENV:","",str_replace("InfBase","",$res)));
 
                 //Imprimir la respuesta JSON
-                //log::info(print_r($res,true)) ;
+                log::info(print_r($res,true)) ;
 
                 return json_encode($res, true);
             } catch (Exception $ex) {
