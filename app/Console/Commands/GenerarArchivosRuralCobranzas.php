@@ -45,6 +45,6 @@ class GenerarArchivosRuralCobranzas extends Command
 
         //Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmaslocal'.$fecha.'.csv', 's9');
         Excel::store(new GenerarBaseClientesRuralCobranzasExport(),  'baseclientes'.$fecha.'.csv', 's11');
-        Excel::store(new GenerarBaseCobrosRuralCobranzas(),  'basecobros'.$fecha.'.xls', 's11');
+        Excel::store(new GenerarBaseCobrosRuralCobranzas(),  'basecobros'.$fecha.'.txt', 's11');
     }
 }
