@@ -189,8 +189,8 @@ class InsertarClientesCPH2 extends Command
                 $cliCPH->monto_cuota = ((float)($cliente['montocuota'] ?? 0));
                 $cliCPH->fecha_vto_cuota = trim((string)($cliente['fechadevtodelacuota'] ?? ''));
                 $cliCPH->ult_fech_pago = trim((string)($cliente['ultimafechadepago'] ?? ''));
-                $cliCPH->total_deuda_cuota = ((float)($clienteCPH['totaldeudacuota'] ?? 0));
-                $cliCPH->total_deuda = ((float)($clienteCPH['totaldeuda'] ?? 0));
+                $cliCPH->total_deuda_cuota = ((float)($cliente['totaldeudacuota'] ?? 0));
+                $cliCPH->total_deuda = ((float)($cliente['totaldeuda'] ?? 0));
                 $cliCPH->fecha_valor =  trim((string)($cliente['fechavalor'] ?? ''));
                 $cliCPH->cod_dist = trim((string)($clienteCPH['coddist'] ?? ''));
                 $cliCPH->lote = $lot;
