@@ -67,8 +67,8 @@ class InsertarCobrosCPH extends Command
                     <inf:Usuario>ApiUserCph</inf:Usuario>
                     <inf:Password>R3$tS04p</inf:Password>
                     <inf:Doc>TODOS</inf:Doc>
-                    <inf:Fec1>2023-12-01</inf:Fec1>
-                    <inf:Fec2>2023-12-30</inf:Fec2>
+                    <inf:Fec1>2024-01-01</inf:Fec1>
+                    <inf:Fec2>2024-01-05</inf:Fec2>
                 </inf:Base_Api_Cph.COBROS>
             </soapenv:Body>
         </soapenv:Envelope>';
