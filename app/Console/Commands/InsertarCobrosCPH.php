@@ -83,7 +83,7 @@ class InsertarCobrosCPH extends Command
                 $res =  simplexml_load_string(str_replace("SOAP-ENV:","",str_replace("InfBase","",$res)));
                 //$res =  json_encode($res, true);
                 //Imprimir la respuesta JSON
-                //log::info(print_r($res,true)) ;
+                log::info(print_r($res,true)) ;
 
                 return json_encode($res, true);
             } catch (Exception $ex) {
