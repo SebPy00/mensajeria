@@ -222,7 +222,7 @@ class InsertarClientesCPH2 extends Command
                     <inf:Ent>10</inf:Ent>
                     <inf:Usuario>ApiUserCph</inf:Usuario>
                     <inf:Password>R3$tS04p</inf:Password>
-                    <inf:Doc>TODOS</inf:Doc>
+                    <inf:Doc>8856</inf:Doc>
                     <inf:Resp>?</inf:Resp>
                     <inf:Respuesta>?</inf:Respuesta>
                 </inf:Base_Api_Cph.CLIENTES>
@@ -239,7 +239,7 @@ class InsertarClientesCPH2 extends Command
                 $res =  simplexml_load_string(str_replace("SOAP-ENV:","",str_replace("InfBase","",$res)));
 
                 //Imprimir la respuesta JSON
-                //log::info(print_r($res,true)) ;
+                log::info(print_r($res,true)) ;
 
                 return json_encode($res, true);
             } catch (Exception $ex) {
