@@ -16,7 +16,7 @@ class InsertarClientesCPH2 extends Command
      *
      * @var string
      */
-    protected $signature = 'ins:cph';
+    protected $signature = 'clientes:cph';
 
     /**
      * The console command description.
