@@ -185,7 +185,7 @@ class EnvioMensajeCRM extends Command
                     $configuracion->contador += 1;
                     $configuracion->save();
                 }else{
-                    if($mensaje->intentos < 3){
+                    if($mensaje->intentos < 2){
                         $mensaje->gesest = 153; //reenviar
                         $mensaje->intentos += 1;
                         $mensaje->save();
@@ -198,7 +198,7 @@ class EnvioMensajeCRM extends Command
                 }
             }
         } catch (Exception $ex) {
-           if ($ $mensaje->intentos>3){
+           if ($ $mensaje->intentos>2){
         	$mensaje->intentos -= 1;		
            }
             

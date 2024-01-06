@@ -24,8 +24,8 @@ class ReporteGestionesBancopPrestamosExport implements FromCollection
         $fechaDesde = $fecha . ' 00:00:00';
         $fechaHasta = $fecha . ' 23:59:00';
 
-       // $fechaDesde = '2023-12-14' . ' 00:00:00';
-       // $fechaHasta = '2023-12-15' . ' 23:59:00';
+       // $fechaDesde = '2023-12-06' . ' 00:00:00';
+       // $fechaHasta = '2023-12-30' . ' 23:59:00';
         $gestiones = $this->getGestiones($fechaDesde, $fechaHasta);
 
         $lista = [];
@@ -60,7 +60,7 @@ class ReporteGestionesBancopPrestamosExport implements FromCollection
         log::info('busca gestiones');
         $client = new Client();
         try {
-            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=BancopPrestamos&param2='.$fechaDesde.'&param3='.$fechaHasta.'';
+            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=BancopPrestamos&param2='.$fechaDesde.'&param3='.$fechaHasta;
             log::info($url);
             $response = $client->get($url);
             // Obtener el contenido del cuerpo de la respuesta en formato XML
