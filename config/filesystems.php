@@ -108,6 +108,13 @@ return [
 	        'url' => env('APP_URL').'/storage',
  	        'visibility' => 'public',
 	    ],
+
+        's12' => [
+	        'driver' => 'local',
+	        'root' => storage_path('ftp60/Base_CPH'),
+	        'url' => env('APP_URL').'/storage',
+ 	        'visibility' => 'public',
+	    ],
     ],
 
     /*
