@@ -57,7 +57,7 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
         return collect($lista);
     }
     private function getCobros($fecha){
-        $cobros = CobrosRuralCobranzas::all();
+        $cobros = CobrosVistaCPH::all();
         return $cobros;
     }
 
