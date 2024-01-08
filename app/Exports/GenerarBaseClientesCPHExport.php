@@ -78,7 +78,7 @@ class GenerarBaseClientesCPHExport implements FromCollection, WithHeadings
     }
 
     private function getClientes($fecha){
-        $clientes = ClientesCPH::all();
+        $clientes = ClientesVistaCPH::all();
         return $clientes;
     }
 
