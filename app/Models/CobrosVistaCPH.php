@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CobrosCPH extends Model
+class CobrosVistaCPH extends Model
 {
     use HasFactory;
     protected $connection = 'servicios';
