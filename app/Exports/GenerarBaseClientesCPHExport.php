@@ -6,7 +6,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Illuminate\Support\Facades\Log;
-use App\Models\ClientesCPH;
+use App\Models\ClientesVistaCPH;
 use Carbon\Carbon;
 
 class GenerarBaseClientesCPHExport implements FromCollection, WithHeadings
