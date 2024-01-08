@@ -103,7 +103,7 @@ class InsertarCobrosCPH extends Command
         //$c = 0;
         $data = json_decode($cobros, true);
 
-            if($data===null||!empty($data['Body']['Base_Api_Cph.COBROSResponse']['Cobroscph'])){ echo 'Error al decodificar el JSON';
+            if($data===null||empty($data['Body']['Base_Api_Cph.COBROSResponse']['Cobroscph'])){ echo 'Error al decodificar el JSON';
             } else {
             foreach ($data['Body']['Base_Api_Cph.COBROSResponse']['Cobroscph']['cobroscphItem'] as $cobro) {
 
