@@ -26,12 +26,6 @@ class GenerarBaseClientesCPHExport implements FromCollection, WithHeadings
 
         if (isset($clientes)) {
             foreach ($clientes as $cli){
-                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->fecha_vto_cuota));
-                $fechaVtoCuota = $carbonFecha->format('j/n/Y');
-                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->ult_fech_pago));
-                $fechaPago = $carbonFecha->format('j/n/Y');
-                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cli->fec_valor));
-                $fechaValor = $carbonFecha->format('j/n/Y');
 
                 $fila = [
                     'cod_cliente'=>trim($cli->cod_cliente),
