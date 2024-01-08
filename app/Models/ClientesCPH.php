@@ -9,6 +9,6 @@ class ClientesCPH extends Model
 {
     use HasFactory;
     protected $connection = 'servicios';
-    protected $table = 'cph.baseclientes';
+    protected $table = 'cph.clientes';
     public $timestamps = false;
 }
