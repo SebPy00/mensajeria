@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
-Use App\Exports\GenerarBaseClientesAlarmaPYExport;
-Use App\Exports\GenerarBaseCobrosAlarmaPY;
+Use App\Exports\GenerarBaseClientesCPHExport;
+Use App\Exports\GenerarBaseCobrosCPH;
 
 class GenerarArchivosCPH extends Command
 {
@@ -44,7 +44,7 @@ class GenerarArchivosCPH extends Command
         $fecha = Carbon::now()->format('Ymd');
 
         //Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmaslocal'.$fecha.'.csv', 's9');
-        Excel::store(new GenerarBaseClientesAlarmaPYExport(),  'baseclientesalarmas'.$fecha.'.xlsx', 's9');
-        Excel::store(new GenerarBaseCobrosAlarmaPY(),  'basecobrosalarmassinope'.$fecha.'.xlsx', 's9');
+        Excel::store(new GenerarBaseClientesCPHExport(),  'baseclientesCPH'.$fecha.'.xlsx', 's12');
+        Excel::store(new GenerarBaseCobrosCPH(),  'basecobrosCPH'.$fecha.'.xlsx', 's12');
     }
 }
