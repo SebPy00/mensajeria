@@ -9,6 +9,6 @@ class CobrosVistaCPH extends Model
 {
     use HasFactory;
     protected $connection = 'servicios';
-    protected $table = 'cph.cobros';
+    protected $table = 'cph.basecobros';
    // public $timestamps = false;
 }
