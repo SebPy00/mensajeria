@@ -112,7 +112,7 @@ class InsertarCobrosCPH extends Command
         //$c = 0;
         $data = json_decode($cobros, true);
 
-            if($data===null||empty($data['Body']['Base_Api_Cph.COBROSResponse']['Cobroscph'])){
+            if($data===null){
                 echo 'La API esta vacia';
 
             } else {
