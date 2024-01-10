@@ -146,7 +146,7 @@ class Kernel extends ConsoleKernel
         ////ALARMASPY///////
         ////////////////////
 
-        //CONSUMO DE API DE CLIENTE E INSERCION DE ASIGNACION EN BASE SIGESA	
+        //CONSUMO DE API DE CLIENTE E INSERCION DE ASIGNACION EN BASE SIGESA
  	 $schedule->command('clientes:alarmas')->daily()->at('7:00');
 	 $schedule->command('cobros:alarmas')->daily()->at('7:15'); //ALARMASPY
 	 $schedule->command('clientes:cph')->daily()->at('7:20');//CPH
@@ -154,6 +154,7 @@ class Kernel extends ConsoleKernel
         //GENERACION DE ARCHIVOS DE BASE PARA SERVICIOS
   	    $schedule->command('generar:alarmaspy')->daily()->at('7:40'); //ALARMASPY
         $schedule->command('generar:ruralcobranzas')->daily()->at('7:50'); //RuralCobranzas
+        $schedule->command('generar:cph')->daily()->at('7:55'); //CPH
         //INSERTAR GESTIONES CLIENTES EN BASE SIGESA DESDE NEOTEL
     	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:30');
     }
