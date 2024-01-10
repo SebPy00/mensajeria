@@ -51,7 +51,7 @@ class InsertarClientesCPH2 extends Command
         //$c = 0;
         $data = json_decode($clientes, true);
 
-            if($data===null||empty($data['Body']['Base_Api_Cph.COBROSResponse']['Cobroscph'])){
+            if($data===null){
                 echo 'La API esta vacia';
             } else {
             foreach ($data['Body']['Base_Api_Cph.CLIENTESResponse']['Clientescph']['clientescphItem'] as $cliente) {
