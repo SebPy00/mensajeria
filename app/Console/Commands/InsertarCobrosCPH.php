@@ -58,6 +58,15 @@ class InsertarCobrosCPH extends Command
                 'Content-Type' => 'text/xml'
             ];
 
+            $fecha = Carbon::now()->format('d');
+            $mes = Carbon::now()->format('m');
+            $fechaHasta = Carbon::now()->toDateString();
+            if($fecha == '01'){
+                $mes = Carbon::now()->subMonth()->format('m');
+                $fechaHasta = Carbon::now()->subDay()->toDateString();
+            }
+            $fechaDesde = '2024-'.$mes.'-01';
+
             //OBS:  <inf:Doc>CI</inf:Doc> PARA TRAER UN SOLO CLIENTE
             $body = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:inf="InfBase">
             <soapenv:Header/>
@@ -67,8 +76,8 @@ class InsertarCobrosCPH extends Command
                     <inf:Usuario>ApiUserCph</inf:Usuario>
                     <inf:Password>R3$tS04p</inf:Password>
                     <inf:Doc>TODOS</inf:Doc>
-                    <inf:Fec1>2024-01-01</inf:Fec1>
-                    <inf:Fec2>2024-01-09</inf:Fec2>
+                    <inf:Fec1>'.$fechaDesde.'</inf:Fec1>
+                    <inf:Fec2>'.$fechaHasta.'</inf:Fec2>
                 </inf:Base_Api_Cph.COBROS>
             </soapenv:Body>
         </soapenv:Envelope>';
