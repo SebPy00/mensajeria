@@ -55,8 +55,8 @@ class ReporteGestionesVinanzasExport implements FromCollection, WithHeadings
     private function getGestiones($fecha){
         log::info('busca gestiones');
        // $fecha = '2023-12-22';// SOLO PARA PRUEBAS
-        $fechaDesde = '2024-01-02';
-        $fechaHasta = '2023-01-03';
+        $fechaDesde = '2024-01-01';
+        $fechaHasta = '2024-01-15';
         $client = new Client();
         try {
 
