@@ -54,6 +54,7 @@ class GenerarBaseCobrosRuralCobranzas implements FromCollection, WithHeadings
             }
         }
 
+        log::info('FIN GENERACION DE BASE COBROS RURAL COBRANZAS');
         return collect($lista);
     }
     private function getCobros($fecha){

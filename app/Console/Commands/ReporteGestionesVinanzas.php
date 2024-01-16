@@ -27,18 +27,18 @@ class ReporteGestionesVinanzas extends Command
         $fecha = Carbon::now()->format('dmY');
 
         // Genera y almacena el archivo CSV de forma asíncrona
-        Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'. '.csv', 's7');
-	    // Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'. '.csv', 's10');
+        Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'.'.csv', 's6');
+	    // Excel::store(new ReporteGestionesVinanzasExport(), $fecha .'_GESTIONES'.'.csv', 's10');
 
         // Mueve el archivo después de almacenarlo
-        //$this->moverArchivo($fecha);
+        $this->moverArchivo($fecha);
     }
 
     private function moverArchivo($fecha)
     {
         log::info('Mueve el archivo');
         $nombreArchivo = $fecha . '_GESTIONES.csv';
-        $origen = 's7';
+        $origen = 's6';
         $destino = 's10';
 
         Storage::disk($destino)->put($nombreArchivo, Storage::disk($origen)->get($nombreArchivo));

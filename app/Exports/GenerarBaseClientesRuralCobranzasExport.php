@@ -17,7 +17,7 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
     use Exportable;
     public function collection()
     {
-        log::info('INICIA GENERACION DE BASE RURAL COBRANZAS');
+        log::info('INICIA GENERACION DE BASE CLIENTES RURAL COBRANZAS');
 
         $fecha = Carbon::now()->toDateString();
         $clientes = $this->getClientes($fecha);
@@ -83,6 +83,7 @@ class GenerarBaseClientesRuralCobranzasExport implements FromCollection, WithHea
             }
         }
 
+        log::info('FIN GENERACION DE BASE CLIENTES RURAL COBRANZAS');
         return collect($lista);
     }
 
