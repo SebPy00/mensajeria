@@ -67,9 +67,10 @@ return [
             'visibility' => 'public',
         ],
 
+        //GESTIONES de VINANZAS
         's6' => [
             'driver' => 'local',
-            'root' => storage_path('ftp60/Base_Vinanzas/Gestiones'),
+            'root' => storage_path('Base_Clientes/Base Vinanzas/Gestiones'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
@@ -81,20 +82,23 @@ return [
             'visibility' => 'public',
         ],
 
+        //GESTIONES de BANCOP
         's8' => [
              'driver' => 'local',
-             'root' => storage_path('bancop/respuesta_sigesa'),
+             'root' => storage_path('Base_Clientes/bancop/bancop/respuesta_sigesa'),
              'url' => env('APP_URL').'/storage',
              'visibility' => 'public',
         ],
 
+        //ARCHIVOS de ALARMAS
 	    's9' => [
-                'driver' => 'local',
-                'root' => storage_path('ftp60/Base_AlarmasPy'),
-                'url' => env('APP_URL').'/storage',
-                'visibility' => 'public',
-            ],
+            'driver' => 'local',
+            'root' => storage_path('Base_Clientes/Base Alarmas'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
 
+        //ARCHIVOS VINANZAS
 	    's10' => [
 	        'driver' => 'local',
 	        'root' => storage_path('vinanzas'),
@@ -102,16 +106,18 @@ return [
  	        'visibility' => 'public',
 	    ],
 
+        //ARCHIVOS RURAL COBRANZAS
         's11' => [
 	        'driver' => 'local',
-	        'root' => storage_path('ftp60/Base_RuralCobranzas'),
+	        'root' => storage_path('Base_Clientes/Base Rural'),
 	        'url' => env('APP_URL').'/storage',
  	        'visibility' => 'public',
 	    ],
 
+        //ARCHIVOS CPH
         's12' => [
 	        'driver' => 'local',
-	        'root' => storage_path('ftp60/Base_CPH'),
+	        'root' => storage_path('Base_Clientes/Base CPH'),
 	        'url' => env('APP_URL').'/storage',
  	        'visibility' => 'public',
 	    ],
