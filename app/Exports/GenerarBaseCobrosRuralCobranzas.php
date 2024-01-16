@@ -26,6 +26,7 @@ class GenerarBaseCobrosRuralCobranzas implements FromCollection, WithHeadings
         $lista = [];
 
         if (isset($cobros)) {
+            log::info('Existen cobros');
             foreach ($cobros as $cob){
                 $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cob->fec_pago));
                 $fechaPago = $carbonFecha->format('j/n/Y');
