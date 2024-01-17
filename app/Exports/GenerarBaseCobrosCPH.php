@@ -67,20 +67,24 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
         return [
             'Numero Documento',
             'Codigo Cliente DET3',
-            'Cliente DET3',
+            'Cliente',
             'Operacion DET3',
-            'Cartera DET3',
+            #'Cartera DET3',
             'Saldo DET3',
             'Fecha Pago DET3',
             'Monto Pagado DET3',
             'Numero Cuota DET3',
-            'Tipo Operacion DET3',
             'Producto DET3',
             'Segmento DET3',
+            #'Tipo Operacion DET3',
             'Numero Documento DET3',
-            'Cotizacion del Dolar DET3',
+            #'Cotizacion del Dolar DET3',
             'Dias Mora DET3',
-            'Tipo Pago DET3'
+            #'Tipo Pago DET3'
+            'Interes Moratorio DET3',
+            'Gastos Cobranza DET3',
+            'IVA DET3',
+            'Interes Punitorio DET3'
         ];
     }
 }
