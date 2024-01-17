@@ -43,7 +43,7 @@ class GenerarArchivosCPH extends Command
     {
         $fecha = Carbon::now()->format('Ymd');
 
-        Excel::store(new GenerarBaseClientesCPHExport(),  'baseclientesCPH'.$fecha.'.xlsx', 's12');
-        Excel::store(new GenerarBaseCobrosCPH(),  'basecobrosCPH'.$fecha.'.xlsx', 's12');
+        Excel::store(new GenerarBaseClientesCPHExport(),  'baseclientesCPH'.$fecha.'.csv', 's12');
+        Excel::store(new GenerarBaseCobrosCPH(),  'basecobrosCPH'.$fecha.'.xls', 's12');
     }
 }
