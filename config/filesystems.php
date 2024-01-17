@@ -101,7 +101,7 @@ return [
         //ARCHIVOS VINANZAS
 	    's10' => [
 	        'driver' => 'local',
-	        'root' => storage_path('Base_Clientes/Base Vinanzas/'),
+	        'root' => storage_path('vinanzas'),
 	        'url' => env('APP_URL').'/storage',
  	        'visibility' => 'public',
 	    ],
