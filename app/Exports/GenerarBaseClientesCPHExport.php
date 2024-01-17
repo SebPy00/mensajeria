@@ -39,7 +39,7 @@ class GenerarBaseClientesCPHExport implements FromCollection, WithHeadings
                     'operacion'=>trim($cli->operacion),
                     'segmento'=>trim($cli->segmento),
                     'producto'=>trim($cli->product),
-                    'tasa'=>trim($cli->tasa),
+                    'tasa'=>trim($cli->dias_mora),
                     'total_saldo'=>trim($cli->total_saldo),
                     'saldo_cuota'=>trim($cli->saldo_cuota),
                     'moratorio'=>trim($cli->moratorio),
