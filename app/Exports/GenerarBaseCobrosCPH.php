@@ -34,20 +34,21 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
                 $fila = [
                     'Numero Documento'=> $cob->nro_documento,
                     'Codigo Cliente DET3'=> $cob->cod_cliente,
-                    'Cliente DET3'=> $cob->nro_documento,
+                    'Cliente'=> $cob->nro_documento,
                     'Operacion DET3'=> $cob->operacion,
-                    'Cartera DET3'=> $cob->cartera,
+                    #'Cartera DET3'=> $cob->cartera,
                     'Saldo DET3'=> $saldoFormateado,
                     'Fecha Pago DET3'=> $fechaPago,
                     'Monto Pagado DET3'=> $cob->mon_pagado,
                     'Numero Cuota DET3'=> $cob->nro_cuota,
-                    'Tipo Operacion DET3'=> $cob->tip_operacion,
                     'Producto DET3'=> $cob->producto,
                     'Segmento DET3'=>'',
                     'Numero Documento DET3'=> $cob->nro_documento,
-                    'Cotizacion del Dolar DET3'=> $cob->cotizacion,
                     'Dias Mora DET3'=> $cob->dias_mora,
-                    'Tipo Pago DET3'=> $cob->tipo_pago
+                    'Interes Moratorio DET3'=> $cob->moratorio,
+                    'Gastos Cobranza DET3'=> $cob->gastos_cob,
+                    'IVA DET3'=> $cob->iva,
+                    'Interes Punitorio DET3'=> $cob->punitorio,
                 ];
                 $lista[]= $fila;
 
