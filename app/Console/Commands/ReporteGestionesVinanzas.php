@@ -32,6 +32,7 @@ class ReporteGestionesVinanzas extends Command
 
         // Mueve el archivo después de almacenarlo
         $this->moverArchivo($fecha);
+        $this->moverArchivo($fecha);
     }
 
     private function moverArchivo($fecha)
