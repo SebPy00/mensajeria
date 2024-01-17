@@ -70,7 +70,7 @@ return [
         //GESTIONES de VINANZAS
         's6' => [
             'driver' => 'local',
-            'root' => storage_path('Base_Clientes/Base Vinanzas/Gestiones'),
+            'root' => storage_path('Base_Clientes/Base Vinanzas'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
@@ -101,7 +101,7 @@ return [
         //ARCHIVOS VINANZAS
 	    's10' => [
 	        'driver' => 'local',
-	        'root' => storage_path('vinanzas'),
+	        'root' => storage_path('Base_Clientes/Base Vinanzas/'),
 	        'url' => env('APP_URL').'/storage',
  	        'visibility' => 'public',
 	    ],
