@@ -32,9 +32,9 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
                 $saldoDet3 = (string) $cob->saldo;
                 $saldoFormateado = str_replace(',', '.', $saldoDet3);
                 $fila = [
-                    'Numero Documento'=> $cob->nrodocumento,
+                    'Numero Documento'=> $cob->nro_documento,
                     'Codigo Cliente DET3'=> $cob->cod_cliente,
-                    'Cliente DET3'=> '',
+                    'Cliente DET3'=> $cob->nro_documento,
                     'Operacion DET3'=> $cob->operacion,
                     'Cartera DET3'=> $cob->cartera,
                     'Saldo DET3'=> $saldoFormateado,
