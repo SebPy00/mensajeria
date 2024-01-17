@@ -150,7 +150,7 @@ class InsertarCobrosCPH extends Command
 
                 $cobCHP = new CobrosCPH();
                 $cobCHP->cod_cliente = trim((string)($cobro['cod_cliente'] ?? ''));
-                $cobCHP->nro_documento = trim((string)($cobro['cliente'] ?? ''));
+                $cobCHP->nro_documento = trim((string)($cobro['nrodedocumento'] ?? ''));
                 $cobCHP->operacion = trim((string)($cobro['operacion'] ?? ''));
                 $cobCHP->saldo = ((float)($cobro['saldo'] ?? 0));
                 $cobCHP->fecha_pago = trim((string)($cobro['fec_pago'] ?? ''));
