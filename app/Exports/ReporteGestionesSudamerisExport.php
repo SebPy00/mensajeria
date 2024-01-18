@@ -91,9 +91,11 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
     {
         // Configuración personalizada del CSV
         return [
-            'delimiter' => ';',
-            'enclosure' => '',
-            'line_ending' => "\n",
+        'file' => 'reporte.txt', // Cambia el nombre del archivo si es necesario
+        'type' => 'text/plain',
+        'delimiter' => ';',
+        'enclosure' => '',
+        'line_ending' => "\n",
         ];
     }
 }
