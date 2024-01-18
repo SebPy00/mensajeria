@@ -89,7 +89,7 @@ class InsertarGestionesRuralCobranzas extends Command
 
         $client = new Client();
         try {
-            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=RuralCobranzas&param2='.$fechaDesde.'&param3='.$fechaHasta.'';
+            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=RuralCobranzas&param2='.$fechaDesde.'&param3='.$fechaHasta;
             log::info($url);
             $response = $client->get($url);
             // Obtener el contenido del cuerpo de la respuesta en formato XML

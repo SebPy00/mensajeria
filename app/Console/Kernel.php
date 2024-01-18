@@ -131,15 +131,6 @@ class Kernel extends ConsoleKernel
         //VERIFICAR MENSAJES CRM BULK
         $schedule->command('verificar:smscrm')->everyFifteenMinutes();
 
-        //GENERAR ARCHIVO DE GESTIONES VINANZAS
-        $schedule->command('gestiones:vinanzas')->daily()->at('19:30');
-
-
-        //INSERTAR GESTIONES RURAL COBRANZAS
-        $schedule->command('insertar:gestionRC')->hourly(); //RURAL COBRANZAS
-
-
-
         /////////////////////////////////////////SERVICIOS////////////////////////////////////////////////
 
         //CONSUMO DE API DE CLIENTE E INSERCION DE ASIGNACION EN BASE SIGESA
@@ -151,8 +142,17 @@ class Kernel extends ConsoleKernel
   	    $schedule->command('generar:alarmaspy')->daily()->at('7:40'); //ALARMASPY
         $schedule->command('generar:ruralcobranzas')->daily()->at('7:50'); //RuralCobranzas
         $schedule->command('generar:cph')->daily()->at('7:55'); //CPH
-        //INSERTAR GESTIONES CLIENTES EN BASE SIGESA DESDE NEOTEL
-    	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:30');
+
+
+        //INSERTAR GESTIONES ALARMAS
+    	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:40');
+
+        //GENERAR ARCHIVO DE GESTIONES VINANZAS
+        $schedule->command('gestiones:vinanzas')->daily()->at('19:30');
+
+
+        //INSERTAR GESTIONES RURAL COBRANZAS
+        $schedule->command('insertar:gestionRC')->hourly();
     }
 
     /**
