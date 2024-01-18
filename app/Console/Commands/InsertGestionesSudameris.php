@@ -110,6 +110,7 @@ class InsertGestionesSudameris extends Command
 
             // Decodificar el JSON
             $json = json_decode($jsonString);
+            log::info(print_r($json,true)) ;
 
             if (!empty($json)) {
                 return $json;
