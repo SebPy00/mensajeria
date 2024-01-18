@@ -110,11 +110,11 @@ class InsertGestionesSudameris extends Command
             log::info(print_r($jsonString,true)) ;
 
             // Decodificar el JSON
-            $json = json_decode($jsonString);
-            log::info(print_r($json,true)) ;
+            //$json = json_decode($jsonString);
+            //log::info(print_r($json,true)) ;
 
-            if (!empty($json)) {
-                return $json;
+            if (!empty($jsonString)) {
+                return $jsonString;
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
