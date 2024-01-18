@@ -67,7 +67,7 @@ class InsertGestionesSudameris extends Command
                     $rc->doc = isset($elemento->Nro_x0020_Documento) ? $elemento->Nro_x0020_Documento : '';
                     $rc->cod_cliente = isset($elemento->Cod_x0020_Cliente) ? $elemento->Cod_x0020_Cliente : '';
                     $rc->nombre_cliente = isset($elemento->Nombre_x0020_Cliente)  ? $elemento->Nombre_x0020_Cliente : '';
-                    $rc->categoria = $isset($elemento->Categoria) ? $elemento->Categoria : '';
+                    $rc->categoria = isset($elemento->Categoria) ? $elemento->Categoria : '';
                     $rc->sub_caregoria = isset($elemento->Sub_x0020_Categoria)  ? $elemento->Sub_x0020_Categoria : '';
                     $rc->id_comentario = isset($elemento->IdComentario) ? $elemento->IdComentario : 0;
                     $rc->comentario = isset($elemento->Comentario) ? $elemento->Comentario : '';
