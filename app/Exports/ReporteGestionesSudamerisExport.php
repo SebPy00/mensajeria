@@ -51,6 +51,8 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
 
                 if ($elemento->RESP_CORTA != 'Cerrado por Proceso') {
                     $lista[] = $fila;
+                } else {
+                    Log::info('Registro filtrado: ' . json_encode($fila));
                 }
             }
         }
