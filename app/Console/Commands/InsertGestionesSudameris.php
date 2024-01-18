@@ -106,6 +106,7 @@ class InsertGestionesSudameris extends Command
 
             // Obtener el contenido del elemento <string> como texto
             $stringElement = simplexml_load_string($xmlContent);
+            log::info(print_r($stringElement,true)) ;
             $jsonString = (string)$stringElement;
 
             // Decodificar el JSON
