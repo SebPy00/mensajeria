@@ -44,7 +44,7 @@ class ReporteGestionesSudameris extends Command
         if ($registros->count() > 0) {
             // Genera y almacena el archivo TXT de forma asíncrona
             $nombreArchivo = 'GESTIONES_' . $fechaInicio->format('Ymd') . '_' . $fechaFin->format('Ymd') . '.txt';
-            Excel::store(new ReporteGestionesSudamerisExport($registros), $nombreArchivo, 's7');
+            Excel::store(new ReporteGestionesSudamerisExport($registros), $nombreArchivo, 's7', \Maatwebsite\Excel\Excel::CSV);
 
             // Mueve el archivo después de almacenarlo
             //$this->moverArchivo($nombreArchivo);
