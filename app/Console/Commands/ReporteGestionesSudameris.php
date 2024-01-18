@@ -39,6 +39,7 @@ class ReporteGestionesSudameris extends Command
         }
 
         $registros = GestionesSudameris::whereBetween('fecha_hora', [$fechaInicio, $fechaFin])->get();
+        Log::info('Número de registros antes de la exportación: ' . $registros->count());
 
         // Verifica si hay registros antes de proceder con la exportación
         if ($registros->count() > 0) {
