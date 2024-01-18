@@ -16,7 +16,7 @@ class InsertGestionesSudameris extends Command
      *
      * @var string
      */
-    protected $signature = 'insertarGestiones:sudameris';
+    protected $signature = 'insertGestiones:sudameris';
 
     /**
      * The console command description.
@@ -53,6 +53,7 @@ class InsertGestionesSudameris extends Command
     private function insertarGestiones ($gestiones){
 
         if (isset($gestiones->Table) && is_array($gestiones->Table)) {
+            log::info('Existen registros');
             foreach ($gestiones->Table as $elemento){
                 try{
 
