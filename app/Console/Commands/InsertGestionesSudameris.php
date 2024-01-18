@@ -107,18 +107,19 @@ class InsertGestionesSudameris extends Command
             // Obtener el contenido del elemento <string> como texto
             $stringElement = simplexml_load_string($xmlContent);
             $jsonString = (string)$stringElement;
-            log::info(print_r($jsonString,true)) ;
+            //log::info(print_r($jsonString,true)) ;
 
             // Decodificar el JSON
-            //$json = json_decode($jsonString);
+            $json = json_decode($jsonString);
             //log::info(print_r($json,true)) ;
 
-            if (!empty($jsonString)) {
-                return $jsonString;
+            if (!empty($json)) {
+                log::info('json NO ESTA VACIO');
+                return $json;
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
-            throw new Exception('ERROR: api AlarmasPY - ' . $pref . $ex->getMessage());
+            throw new Exception('ERROR: api SUDAMERIS - ' . $pref . $ex->getMessage());
         }
     }
 }
