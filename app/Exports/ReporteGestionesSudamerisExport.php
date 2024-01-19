@@ -28,6 +28,7 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
         $lista = [];
 
         if (isset($gestiones->Table) && is_array($gestiones->Table)) {
+            log::info('Existen gestiones en table');
             foreach ($gestiones->Table as $elemento) {
                 $fgestion = new Carbon($elemento->FECHA_GESTION);
                 $freagenda = new Carbon($elemento->FECHA_REAGENDADA);
