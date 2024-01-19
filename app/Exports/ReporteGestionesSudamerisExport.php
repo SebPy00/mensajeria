@@ -25,7 +25,7 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
 
         $gestiones = $this->registros;
         Log::info('Número de registros de gestiones: ' . $gestiones->count());
-
+        log::info($gestiones);
         $lista = [];
 
         if (isset($gestiones->Table) && is_array($gestiones->Table)) {
