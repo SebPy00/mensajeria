@@ -29,6 +29,8 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
             foreach ($cobros as $cob){
                 $carbonFecha = Carbon::createFromFormat('m/d/y', trim($cob->fecha_pago));
                 $fechaPago = $carbonFecha->format('j/n/Y');
+                $carbonUltFecha = Carbon::createFromFormat('m/d/y', trim($cob->ult_pago));
+                $fechaUltPago = $carbonFecha->format('j/n/Y');
                 $saldoDet3 = (string) $cob->saldo;
                 $saldoFormateado = str_replace(',', '.', $saldoDet3);
                 $fila = [
@@ -49,6 +51,8 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
                     'Gastos Cobranza DET3'=> $cob->gastos_cob,
                     'IVA DET3'=> $cob->iva,
                     'Interes Punitorio DET3'=> $cob->punitorio,
+                    'Fecha Ultimo Pago DET3'=> $fechaUltPago,
+                    'Monto Total Cobrado DET3'=> $cob->total_cobrado,
                 ];
                 $lista[]= $fila;
 
@@ -84,7 +88,9 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
             'Interes Moratorio DET3',
             'Gastos Cobranza DET3',
             'IVA DET3',
-            'Interes Punitorio DET3'
+            'Interes Punitorio DET3',
+            'Fecha Ultimo Pago DET3',
+            'Monto Total Cobrado DET3'
         ];
     }
 }
