@@ -24,6 +24,7 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
         log::info('INICIA REPORTE DE GESTION DIARIA SUDAMERIS');
 
         $gestiones = $this->registros;
+        Log::info('Número de registros de gestiones: ' . $gestiones->count());
 
         $lista = [];
 
