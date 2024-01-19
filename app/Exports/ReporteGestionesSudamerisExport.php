@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\GestionesSudameris;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -24,38 +23,36 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
         log::info('INICIA REPORTE DE GESTION DIARIA SUDAMERIS');
 
         $gestiones = $this->registros;
-        Log::info('Número de registros de gestiones: ' . $gestiones->count());
+        Log::info('Número de registros de gestiones: ' . count($gestiones));
         log::info($gestiones);
+
         $lista = [];
 
-        if (isset($gestiones->Table) && is_array($gestiones->Table)) {
-            log::info('Existen gestiones en table');
-            foreach ($gestiones->Table as $elemento) {
-                $fgestion = new Carbon($elemento->FECHA_GESTION);
-                $freagenda = new Carbon($elemento->FECHA_REAGENDADA);
+        foreach ($gestiones as $elemento) {
+            $fgestion = new Carbon($elemento['Fecha_x0020__x0026__x0020_Hora']);
+            $freagenda = isset($elemento['Fecha_x0020_de_x0020_Agenda']) ? new Carbon($elemento['Fecha_x0020_de_x0020_Agenda']) : null;
 
-                $fila = [
-                    'base' => $elemento->BASE,
-                    'id_contacto' => $elemento->ID_CONTACTO,
-                    'doc' => $elemento->DOC,
-                    'cod_cliente' => $elemento->COD_CLIENTE,
-                    'nombre_cliente' => $elemento->NOMBRE_CLIENTE,
-                    'categoria' => $elemento->CATEGORIA,
-                    'sub_categoria' => $elemento->SUB_CATEGORIA,
-                    'id_comentario' => $elemento->ID_COMENTARIO,
-                    'comentario' => $elemento->COMENTARIO,
-                    'fecha_hora' => $fgestion->toDateTimeString(),
-                    'fecha_agenda' => $freagenda->toDateTimeString(),
-                    'telefono' => $elemento->TELEFONO,
-                    'usuario' => $elemento->USUARIO,
-                    'operacion' => $elemento->OPERACION,
-                ];
+            $fila = [
+                'base' => $elemento['Bases_x0020_de_x0020_datos'],
+                'id_contacto' => $elemento['Id_x0020_contacto'],
+                'doc' => $elemento['Nro_x0020_Documento'],
+                'cod_cliente' => $elemento['Cod_x0020_Cliente'],
+                'nombre_cliente' => $elemento['Nombre_x0020_Cliente'],
+                'categoria' => $elemento['Categoria'],
+                'sub_categoria' => $elemento['Sub_x0020_Categoria'],
+                'id_comentario' => $elemento['IdComentario'],
+                'comentario' => $elemento['Comentario'],
+                'fecha_hora' => $fgestion->toDateTimeString(),
+                'fecha_agenda' => $freagenda ? $freagenda->toDateTimeString() : null,
+                'telefono' => $elemento['Teléfono'],
+                'usuario' => $elemento['Usuario'],
+                'operacion' => $elemento['Operacion'],
+            ];
 
-                if ($elemento->RESP_CORTA != 'Cerrado por Proceso') {
-                    $lista[] = $fila;
-                } else {
-                    Log::info('Registro filtrado: ' . json_encode($fila));
-                }
+            if ($elemento['Resolución_x0020_Originadora'] != 'Cerrado por Proceso') {
+                $lista[] = $fila;
+            } else {
+                Log::info('Registro filtrado: ' . json_encode($fila));
             }
         }
 
@@ -64,7 +61,6 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
 
     public function headings(): array
     {
-        // Define los encabezados de las columnas en el archivo
         return [
             'base',
             'id_contacto',
@@ -85,19 +81,17 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
 
     public function map($fila): array
     {
-        // Mapea cada valor de la fila para personalizar la salida
         return $fila;
     }
 
     public function getCsvSettings(): array
     {
-        // Configuración personalizada del CSV
         return [
-        'file' => 'reporte.txt', // Cambia el nombre del archivo si es necesario
-        'type' => 'text/plain',
-        'delimiter' => ';',
-        'enclosure' => '',
-        'line_ending' => "\n",
+            'file' => 'reporte.txt',
+            'type' => 'text/plain',
+            'delimiter' => ';',
+            'enclosure' => '',
+            'line_ending' => "\n",
         ];
     }
 }
