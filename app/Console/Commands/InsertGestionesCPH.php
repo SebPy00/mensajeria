@@ -83,11 +83,11 @@ class InsertGestionesCPH extends Command
     private function getGestiones($fecha){
         log::info('busca gestiones CPH');
 
-        $fechaDesde = $fecha .' 00:00:00';
-        $fechaHasta = $fecha .' 23:59:59';
+        //$fechaDesde = $fecha .' 00:00:00';
+        //$fechaHasta = $fecha .' 23:59:59';
 
-        //$fechaDesde = '2024-01-02 00:00:00'; //Usar para tener gestiones de dias anteriores
-        //$fechaHasta = '2024-01-02 23:59:59'; //Usar para tener gestiones de dias anteriores
+        $fechaDesde = '2023-12-21 00:00:00'; //Usar para tener gestiones de dias anteriores
+        $fechaHasta = '2024-01-21 23:59:59'; //Usar para tener gestiones de dias anteriores
 
         $client = new Client();
         try {
