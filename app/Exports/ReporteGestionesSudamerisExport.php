@@ -64,7 +64,6 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
         return [
             'base',
             'id_contacto',
-            'doc',
             'cod_cliente',
             'nombre_cliente',
             'categoria',
@@ -75,7 +74,6 @@ class ReporteGestionesSudamerisExport implements FromCollection, WithHeadings, W
             'fecha_agenda',
             'telefono',
             'usuario',
-            'operacion',
         ];
     }
 
