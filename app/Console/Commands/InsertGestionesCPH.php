@@ -105,6 +105,7 @@ class InsertGestionesCPH extends Command
             $json = json_decode($jsonString);
 
             if (!empty($json)) {
+                log::info('Retorna las gestiones');
                 return $json;
             }
         } catch (Exception $ex) {
