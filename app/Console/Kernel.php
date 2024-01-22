@@ -147,6 +147,12 @@ class Kernel extends ConsoleKernel
         //INSERTAR GESTIONES ALARMAS
     	$schedule->command('insertargestiones:alarmaspy')->daily()->at('19:40');
 
+        //INSERTAR GESTIONES ALARMAS
+    	$schedule->command('insertargestiones:cph')->daily()->at('19:45');
+
+        //INSERTAR GESTIONES ALARMAS
+    	$schedule->command('insertargestiones:sudameris')->daily()->at('19:50');
+
         //GENERAR ARCHIVO DE GESTIONES VINANZAS
         $schedule->command('gestiones:vinanzas')->daily()->at('19:30');
 

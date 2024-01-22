@@ -90,11 +90,11 @@ class InsertGestionesSudameris extends Command
     private function getGestiones($fecha){
         log::info('busca gestiones sudameris');
 
-        $fechaDesde = $fecha .'%2000:00:00';
-        $fechaHasta = $fecha .'%2023:59:59';
+        //$fechaDesde = $fecha .'%2000:00:00';
+        //$fechaHasta = $fecha .'%2023:59:59';
 
-        //$fechaDesde = '2024-01-03%2000:00:00'; //Usar para tener gestiones de dias anteriores
-        //$fechaHasta = '2024-01-03%2023:59:59'; //Usar para tener gestiones de dias anteriores
+        $fechaDesde = '2024-01-18%2000:00:00'; //Usar para tener gestiones de dias anteriores
+        $fechaHasta = '2024-01-21%2023:59:59'; //Usar para tener gestiones de dias anteriores
 
         $client = new Client();
         try {
