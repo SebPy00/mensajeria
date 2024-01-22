@@ -3,40 +3,39 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 
 class ClearLaravelLog extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'command:name';
+    protected $signature = 'logs:clear-laravel';
+    protected $description = 'Clear Laravel log file, keeping entries from the last 15 days';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
-        return 0;
+        $logPath = storage_path('logs');
+        $logFile = 'laravel.log';
+        $logFilePath = $logPath . '/' . $logFile;
+
+        if (File::exists($logFilePath)) {
+            $content = File::get($logFilePath);
+
+            // Mantener solo las entradas de los últimos 15 días
+            $cutOffDate = Carbon::now()->subDays(15)->format('Y-m-d H:i:s');
+            $filteredContent = preg_replace("/^\[.*?\] local\.[^\n]*\n?/m", "", $content);
+            $filteredContent = preg_replace("/^\[.*?\] production\.[^\n]*\n?/m", "", $filteredContent);
+
+            $lines = explode("\n", $filteredContent);
+            $filteredLines = array_filter($lines, function ($line) use ($cutOffDate) {
+                return empty($line) || Carbon::parse(substr($line, 1, 19))->gt($cutOffDate);
+            });
+
+            $finalContent = implode("\n", $filteredLines);
+
+            File::put($logFilePath, $finalContent);
+            $this->info("Cleared and kept entries from the last 15 days in {$logFile}.");
+        } else {
+            $this->info("{$logFile} not found.");
+        }
     }
 }

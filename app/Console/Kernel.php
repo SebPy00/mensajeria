@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\Cliente;
+use App\Console\Commands\ClearLaravelLog;
 use App\Console\Commands\EnviarMensajes;
 use App\Console\Commands\EnviarMensajeInterno;
 use App\Console\Commands\PoblarDatos;
@@ -56,6 +57,7 @@ class Kernel extends ConsoleKernel
         InsertarCobrosCPH::class,
         GenerarArchivosAlarmasPY::class,
         GenerarArchivosRuralCobranzas::class,
+        ClearLaravelLog::class,
     ];
 
     /**
@@ -159,6 +161,9 @@ class Kernel extends ConsoleKernel
 
         //INSERTAR GESTIONES RURAL COBRANZAS
         $schedule->command('insertar:gestionRC')->hourly();
+
+        //LIMPIAR EL LOG
+        $schedule->command('logs:clear-laravel')->dailyAt('23:00');
     }
 
     /**
