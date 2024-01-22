@@ -64,7 +64,7 @@ class InsertGestionesCPH extends Command
                     $rc->nro_documento = isset($elemento->NRO_DOCUMENTO) ? $elemento->NRO_DOCUMENTO : '';
                     $rc->nombre_completo = isset($elemento->NOM_COMPLETO) ? $elemento->NOM_COMPLETO : '';
                     $rc->fecha_gestion = $fgestion;
-                    $rc->fecha_reagenda = $freagenda;
+                    $rc->fecha_reagendada = $freagenda;
                     $rc->cod_respuesta = isset($elemento->COD_RESPUESTA) ? $elemento->COD_RESPUESTA : '';
                     $rc->respuesta_corta = isset($elemento->RESP_CORTA) ? $elemento->RESP_CORTA : '';
                     $rc->operacion = isset($elemento->OPERACION) ? $elemento->OPERACION : '';
