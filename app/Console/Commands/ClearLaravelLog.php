@@ -33,7 +33,7 @@ class ClearLaravelLog extends Command
             $finalContent = implode("\n", $filteredLines);
 
             File::put($logFilePath, $finalContent);
-            $this->info("Cleared and kept entries from the last 15 days in {$logFile}.");
+            $this->info("Se limpiaron los logs, se mantuvieron los ultimos 15 dias en {$logFile}.");
         } else {
             $this->info("{$logFile} not found.");
         }
