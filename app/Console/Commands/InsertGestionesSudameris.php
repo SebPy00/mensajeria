@@ -16,7 +16,7 @@ class InsertGestionesSudameris extends Command
      *
      * @var string
      */
-    protected $signature = 'insertarGestiones:sudameris';
+    protected $signature = 'insertargestiones:sudameris';
 
     /**
      * The console command description.
