@@ -87,7 +87,7 @@ class InsertGestionesCPH extends Command
         //$fechaHasta = $fecha .' 23:59:59';
 
         $fechaDesde = '2024-01-01 00:00:00'; //Usar para tener gestiones de dias anteriores
-        $fechaHasta = '2024-01-21 23:59:59'; //Usar para tener gestiones de dias anteriores
+        $fechaHasta = '2024-01-10 23:59:59'; //Usar para tener gestiones de dias anteriores
 
         $client = new Client();
         try {
