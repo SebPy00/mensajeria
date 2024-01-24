@@ -170,7 +170,7 @@ class InsertarCobrosCPH extends Command
                 $cobCHP->segmento = $seg;
                 $cobCHP->dias_mora = ((int)($cobro['diasdemora'] ?? 0));
                 $cobCHP->created_at = $fechaFormateada;
-                $cobCHP->uodated_at = $fechaFormateada;
+                $cobCHP->updated_at = $fechaFormateada;
                 $cobCHP->save();
             }
 
