@@ -151,6 +151,8 @@ class InsertarCobrosCPH extends Command
                 /////////////////////////// guardamos el cobro - pasar a función ////////////////
 
                 ///////////////////////////////////////////////////////////////////////////////////
+                $fechaCarbon = Carbon::createFromFormat('d/m/y', trim((string)($cobro['fec_pago'] ?? '')));
+                $fechaFormateada = $fechaCarbon->format('Y-m-d H:i:s');
 
                 $cobCHP = new CobrosCPH();
                 $cobCHP->cod_cliente = trim((string)($cobro['cod_cliente'] ?? ''));
@@ -167,8 +169,8 @@ class InsertarCobrosCPH extends Command
                 $cobCHP->producto = trim((float)($cobro['tasa'] ?? 0));
                 $cobCHP->segmento = $seg;
                 $cobCHP->dias_mora = ((int)($cobro['diasdemora'] ?? 0));
-                $cobCHP->created_at = trim((string)($cobro['fec_pago'] ?? ''));
-                $cobCHP->uodated_at = trim((string)($cobro['fec_pago'] ?? ''));
+                $cobCHP->created_at = $fechaFormateada;
+                $cobCHP->uodated_at = $fechaFormateada;
                 $cobCHP->save();
             }
 
