@@ -151,7 +151,7 @@ class InsertarCobrosCPH extends Command
                 /////////////////////////// guardamos el cobro - pasar a función ////////////////
 
                 ///////////////////////////////////////////////////////////////////////////////////
-                $fechaCarbon = Carbon::createFromFormat('d/m/y', trim((string)($cobro['fec_pago'] ?? '')));
+                $fechaCarbon = Carbon::createFromFormat('d/m/y H:i:s', trim((string)($cobro['fec_pago'] ?? '')).' 00:00:00');
                 $fechaFormateada = $fechaCarbon->format('Y-m-d H:i:s');
 
                 $cobCHP = new CobrosCPH();
