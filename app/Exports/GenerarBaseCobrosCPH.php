@@ -20,8 +20,21 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
     {
         log::info('INICIA GENERACION DE BASE COBROS RURAL COBRANZAS');
 
-        $fecha = Carbon::now()->toDateString();
-        $cobros = $this->getCobros($fecha);
+
+        $dia = Carbon::now()->format('d');
+        $mes = Carbon::now()->format('m');
+        $año = Carbon::now()->format('Y');
+
+        $fechaHasta = Carbon::now()->toDateString();
+        if($dia == '01'){
+            $mes = Carbon::now()->subMonth()->format('m');
+            if($mes == '12'){
+                $año = Carbon::now()->subYear()->format('Y');
+            }
+        }
+        $fechaDesde = $año.'-'.$mes.'-01';
+
+        $cobros = $this->getCobros($fechaDesde, $fechaHasta);
 
         $lista = [];
 
@@ -61,8 +74,8 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
 
         return collect($lista);
     }
-    private function getCobros($fecha){
-        $cobros = CobrosVistaCPH::all();
+    private function getCobros($fechaDesde, $fechaHasta){
+        $cobros = CobrosVistaCPH::whereBetween('fecha_pago', [$fechaDesde, $fechaHasta])->get();
         return $cobros;
     }
 

@@ -58,15 +58,6 @@ class InsertarCobrosCPH extends Command
                 'Content-Type' => 'text/xml'
             ];
 
-            /*$fecha = Carbon::now()->format('d');
-            $mes = Carbon::now()->format('m');
-            $fechaHasta = Carbon::now()->toDateString();
-            if($fecha == '01'){
-                $mes = Carbon::now()->subMonth()->format('m');
-                $fechaHasta = Carbon::now()->subDay()->toDateString();
-            }
-            $fechaDesde = '2024-'.$mes.'-01';*/
-
             $fecha = Carbon::now()->subDay()->toDateString();
             $fechaDesde = $fecha;
             $fechaHasta = $fecha;
