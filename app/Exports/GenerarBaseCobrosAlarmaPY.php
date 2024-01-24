@@ -42,7 +42,9 @@ class GenerarBaseCobrosAlarmaPY implements FromCollection, WithHeadings
                         'Segmento DET3'=>'',
                         'Numero Documento DET3'=> $cob->nro_documento,
                         'Cotizacion del Dolar DET3'=> $cob->cotizacion,
-                        'Dias Mora DET3'=> $cob->dias_mora
+                        'Dias Mora DET3'=> $cob->dias_mora,
+                        'Fecha Ultimo Pago DET3'=> $cob->fecha_pago,
+                        'Monto Total Cobrado DET3'=> $cob->monto_pagado,
                     ];
                     $lista[]= $fila;
 
@@ -73,7 +75,9 @@ class GenerarBaseCobrosAlarmaPY implements FromCollection, WithHeadings
             'Segmento DET3',
             'Numero Documento DET3',
             'Cotizacion del Dolar DET3',
-            'Dias Mora DET3'
+            'Dias Mora DET3',
+            'Fecha Ultimo Pago DET3',
+            'Monto Total Cobrado DET3',
         ];
     }
 }
