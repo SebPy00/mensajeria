@@ -67,8 +67,8 @@ class InsertarCobrosCPH extends Command
             }
             $fechaDesde = '2024-'.$mes.'-01';*/
 
-            $fechaDesde = '2023-11-01';
-            $fechaHasta = '2023-12-31';
+            $fechaDesde = '2024-01-01';
+            $fechaHasta = '2024-01-23';
 
 
             //OBS:  <inf:Doc>CI</inf:Doc> PARA TRAER UN SOLO CLIENTE
