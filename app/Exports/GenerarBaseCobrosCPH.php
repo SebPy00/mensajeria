@@ -40,10 +40,10 @@ class GenerarBaseCobrosCPH implements FromCollection, WithHeadings
 
         if (isset($cobros)) {
             foreach ($cobros as $cob){
-                $carbonFecha = Carbon::createFromFormat('j/n/Y', trim($cob->fecha_pago));
-                $fechaPago = $carbonFecha;
-                $carbonUltFecha = Carbon::createFromFormat('j/n/Y', trim($cob->ult_pago));
-                $fechaUltPago = $carbonFecha;
+                $carbonFecha = Carbon::createFromFormat('Y-m-d', trim($cob->fecha_pago));
+                $fechaPago = $carbonFecha->format('j/n/Y');
+                $carbonUltFecha = Carbon::createFromFormat('Y-m-d', trim($cob->ult_pago));
+                $fechaUltPago = $carbonFecha->format('j/n/Y');
                 $saldoDet3 = (string) $cob->saldo;
                 $saldoFormateado = str_replace(',', '.', $saldoDet3);
                 $fila = [
