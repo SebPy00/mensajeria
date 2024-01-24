@@ -58,14 +58,18 @@ class InsertarCobrosCPH extends Command
                 'Content-Type' => 'text/xml'
             ];
 
-            $fecha = Carbon::now()->format('d');
+            /*$fecha = Carbon::now()->format('d');
             $mes = Carbon::now()->format('m');
             $fechaHasta = Carbon::now()->toDateString();
             if($fecha == '01'){
                 $mes = Carbon::now()->subMonth()->format('m');
                 $fechaHasta = Carbon::now()->subDay()->toDateString();
             }
-            $fechaDesde = '2024-'.$mes.'-01';
+            $fechaDesde = '2024-'.$mes.'-01';*/
+
+            $fechaDesde = '2023-06-01';
+            $fechaHasta = '2023-10-31';
+
 
             //OBS:  <inf:Doc>CI</inf:Doc> PARA TRAER UN SOLO CLIENTE
             $body = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:inf="InfBase">
@@ -162,7 +166,9 @@ class InsertarCobrosCPH extends Command
                 $cobCHP->nro_cuota = ((int)($cobro['nro_cuota'] ?? 0));
                 $cobCHP->producto = trim((float)($cobro['tasa'] ?? 0));
                 $cobCHP->segmento = $seg;
-                $cobCHP->dias_mora = $prod;
+                $cobCHP->dias_mora = ((int)($cobro['diasdemora'] ?? 0));
+                $cobCHP->created_at = trim((string)($cobro['fec_pago'] ?? ''));
+                $cobCHP->uodated_at = trim((string)($cobro['fec_pago'] ?? ''));
                 $cobCHP->save();
             }
 
