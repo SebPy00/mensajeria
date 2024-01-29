@@ -54,13 +54,16 @@ class ReporteGestionesVinanzasExport implements FromCollection, WithHeadings
 
     private function getGestiones($fecha){
         log::info('busca gestiones');
-        $fechaDesde = '2024-01-22';
-        $fechaHasta = '2024-01-24';
+        $fechaDesde = $fecha;
+        $fechaHasta = $fecha;
+
+        //$fechaDesde = '2024-01-22';
+        //$fechaHasta = '2024-01-24';
         $client = new Client();
         try {
 
             //$url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=VinanzasCobranzas&param2='.$fechaDesde.' 00:00:00'.'&param3='.$fechaHasta.' 23:59:59';
-            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=VinanzasCobranzas&param2='.$fecha.' 00:00:00&param3='.$fecha.' 23:59:59';
+            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=VinanzasCobranzas&param2='.$fechaDesde.' 00:00:00&param3='.$fechaHasta.' 23:59:59';
             log::info($url);
             $response = $client->get($url);
             // Obtener el contenido del cuerpo de la respuesta en formato XML
