@@ -92,12 +92,13 @@ class GenerarBaseClientesNeotelExport
         // Enviar la solicitud HTTP POST con los datos JSON y las cabeceras
         $response = Http::withHeaders($headers)->post($url, $params);
 
-        // Verificar la respuesta de la API
         if ($response->successful()) {
             // Solicitud exitosa
+            Log::info('Respuesta de la API: ' . $response->body());
             return $response->json();
         } else {
             // Error en la solicitud
+            Log::error('Error al enviar los datos a la API. Código de estado: ' . $response->status());
             return response()->json(['error' => 'Error al enviar los datos a la API'], $response->status());
         }
     }
