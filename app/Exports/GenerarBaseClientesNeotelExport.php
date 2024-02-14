@@ -94,7 +94,7 @@ class GenerarBaseClientesNeotelExport
 
         if ($response->successful()) {
             // Solicitud exitosa
-            Log::info('Respuesta de la API: ' . $response->body());
+            Log::info('Respuesta de la API: ' . $response->status());
             echo $response->body();
         } else {
             // Error en la solicitud
