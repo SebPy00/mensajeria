@@ -62,7 +62,8 @@ class GenerarBaseClientesNeotelExport
                     'dato_extra5' => '',
                     'dato_extra6' => '',
                     'dato_extra7' => '',
-                    'COD_GESTOR' => ''
+                    'COD_GESTOR' => '',
+                    'TRAMO' => 1
                 ];
                 $lista[] = $fila;
             }
