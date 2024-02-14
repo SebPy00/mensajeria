@@ -105,6 +105,6 @@ class GenerarBaseClientesNeotelExport
 
     private function getClientes($fecha)
     {
-        return DatosEjemplo::whereDate('fecha_insert', $fecha)->inRandomOrder()->limit(1)->get();
+        return DatosEjemplo::whereDate('fecha_insert', $fecha)->inRandomOrder()->limit(100)->get();
     }
 }
