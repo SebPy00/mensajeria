@@ -103,6 +103,6 @@ class GenerarBaseClientesNeotelExport
 
     private function getClientes($fecha)
     {
-        return DatosEjemplo::all();
+        return DatosEjemplo::whereDate('fecha_insert', $fecha)->get();
     }
 }
