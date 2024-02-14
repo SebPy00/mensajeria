@@ -16,7 +16,7 @@ class GenerarBaseClientesNeotelExport
 
         $fecha = Carbon::now()->toDateString();
         $fechaAyer = Carbon::yesterday()->toDateString();
-        $clientes = $this->getClientes($fechaAyer);
+        $clientes = $this->getClientes($fecha);
         $lista = [];
 
         if (isset($clientes)) {
@@ -95,7 +95,7 @@ class GenerarBaseClientesNeotelExport
         if ($response->successful()) {
             // Solicitud exitosa
             Log::info('Respuesta de la API: ' . $response->status());
-            echo $response->body();
+            echo 'Respuesta de estado'.$response->body();
         } else {
             // Error en la solicitud
             Log::error('Error al enviar los datos a la API. Código de estado: ' . $response->status());
