@@ -15,7 +15,8 @@ class GenerarBaseClientesNeotelExport
         Log::info('INICIA GENERACION DE BASE CLIENTES NEOTEL');
 
         $fecha = Carbon::now()->toDateString();
-        $clientes = $this->getClientes($fecha);
+        $fechaAyer = Carbon::yesterday()->toDateString();
+        $clientes = $this->getClientes($fechaAyer);
         $lista = [];
 
         if (isset($clientes)) {
@@ -78,7 +79,7 @@ class GenerarBaseClientesNeotelExport
         // Parámetros adicionales para enviar a la API
         $params = [
             'idtask' => 39,
-            'param1' => 'Ejemplo1',
+            'param1' => 'Ejemplo2',
             'param2' => $json_data
         ];
 
