@@ -73,15 +73,15 @@ class GenerarBaseClientesNeotelExport
         // Convertir la lista de datos a JSON
         $json_data = json_encode($lista);
 
-        // URL del endpoint de la API
-        $url = 'http://10.19.150.80/neoapi/webservice.asmx';
-
         // Parámetros adicionales para enviar a la API
         $params = [
             'idtask' => 39,
             'param1' => 'Ejemplo2',
             'param2' => $json_data
         ];
+
+        // URL del endpoint de la API
+        $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask02';
 
         // Cabeceras HTTP para JSON
         $headers = [
@@ -90,16 +90,16 @@ class GenerarBaseClientesNeotelExport
         ];
 
         // Enviar la solicitud HTTP POST con los datos JSON y las cabeceras
-        $response = Http::withHeaders($headers)->post($url, $params);
+        $response = Http::asForm()->post($url, $params);
 
         if ($response->successful()) {
             // Solicitud exitosa
             Log::info('Respuesta de la API: ' . $response->body());
-            return $response->json();
+            echo $response->body();
         } else {
             // Error en la solicitud
             Log::error('Error al enviar los datos a la API. Código de estado: ' . $response->status());
-            return response()->json(['error' => 'Error al enviar los datos a la API'], $response->status());
+            echo 'Error ' . $response->status() . ': ' . $response->body();
         }
     }
 
