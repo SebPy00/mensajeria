@@ -86,12 +86,12 @@ class InsertGestionesAlarmasPY extends Command
         $fechaDesde = $fecha .' 00:00:00';
         $fechaHasta = $fecha .' 23:59:59';
 
-        //$fechaDesde = '2024-01-02 00:00:00'; //Usar para tener gestiones de dias anteriores
-        //$fechaHasta = '2024-01-02 23:59:59'; //Usar para tener gestiones de dias anteriores
+        $fechaDesde = '2024-02-14 00:00:00'; //Usar para tener gestiones de dias anteriores
+        $fechaHasta = '2024-02-15 23:59:59'; //Usar para tener gestiones de dias anteriores
 
         $client = new Client();
         try {
-            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=AlarmasPY&param2='.$fechaDesde.'&param3='.$fechaHasta.'';
+            $url = 'http://10.19.150.80/neoapi/webservice.asmx/ExecuteTask03?idTask=28&param1=AlarmasPY&param2='.$fechaDesde.'&param3='.$fechaHasta;
             log::info($url);
             $response = $client->get($url);
             // Obtener el contenido del cuerpo de la respuesta en formato XML
