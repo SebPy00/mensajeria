@@ -57,7 +57,7 @@ class InsertGestionesAlarmasPY extends Command
 
                     //AGREGAR VALIDACIÓN UNO A UNO PARA NO INSERTAR GESTIONES REPETIDAS
                     $fgestion = isset($elemento->FECHA_GESTION) ? new Carbon ($elemento->FECHA_GESTION): '';
-                    $freagenda = isset($elemento->FECHA_REAGENDADA) ? new Carbon ($elemento->FECHA_REAGENDADA): '';
+                    $freagenda = isset($elemento->FECHA_REAGENDADA) ? new Carbon ($elemento->FECHA_REAGENDADA): '9999-12-31';
 
                     $rc = new GestionesAlarmasPY();
                     $rc->cod_persona = isset($elemento->COD_PERSONA) ? $elemento->COD_PERSONA : '';
