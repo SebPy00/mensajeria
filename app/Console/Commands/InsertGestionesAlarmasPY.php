@@ -86,8 +86,8 @@ class InsertGestionesAlarmasPY extends Command
         $fechaDesde = $fecha .' 00:00:00';
         $fechaHasta = $fecha .' 23:59:59';
 
-        $fechaDesde = '2024-02-14 00:00:00'; //Usar para tener gestiones de dias anteriores
-        $fechaHasta = '2024-02-15 23:59:59'; //Usar para tener gestiones de dias anteriores
+        //$fechaDesde = '2024-02-14 00:00:00'; //Usar para tener gestiones de dias anteriores
+        //$fechaHasta = '2024-02-15 23:59:59'; //Usar para tener gestiones de dias anteriores
 
         $client = new Client();
         try {
