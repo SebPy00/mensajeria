@@ -57,8 +57,8 @@ class ReporteGestionesVinanzasExport implements FromCollection, WithHeadings
         $fechaDesde = $fecha;
         $fechaHasta = $fecha;
 
-       // $fechaDesde = '2024-02-06';
-       // $fechaHasta = '2024-02-06';
+        $fechaDesde = '2024-02-21';
+        $fechaHasta = '2024-02-22';
         $client = new Client();
         try {
 
