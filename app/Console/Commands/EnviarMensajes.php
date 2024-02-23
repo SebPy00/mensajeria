@@ -221,7 +221,8 @@ class EnviarMensajes extends Command
         return $estado;
     }
 
-    public function procesar($d, $area, $tipo, $categoria, $mensaje){
+    public function procesar($d, $area, $tipo, $categoria, $mensajeOriginal){
+        $mensaje = urlencode($mensajeOriginal)
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
         if(!empty($listaNegra)){
