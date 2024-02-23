@@ -162,12 +162,12 @@ class EnviarMensajes extends Command
 		            	if ($contador2 == 100){
 		            		$contador2=1;
 		            		sleep(30);
-		            	} */                	
+		            	} */
 		                if($contador < 100){
 		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
-		                    $contador +=1;			    
-		                }else{        
-		                    sleep(30);                    
+		                    $contador +=1;
+		                }else{
+		                    sleep(30);
 		                    $estado = $this->verificarEstadoLote($lote->id);
 		                    if(empty($estado)){
 		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
@@ -184,7 +184,7 @@ class EnviarMensajes extends Command
 		            }
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
-			    sleep(30); 
+			    sleep(30);
 			}
                 }
                $this->verificarEnvioMensajes($lote);
@@ -268,14 +268,14 @@ class EnviarMensajes extends Command
             }
         } catch (Exception $ex) {
             $pref = 'webservice => ';
-            log::info('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());    
+            log::info('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());
             //throw new Exception('ERROR 1: funcion enviarMensaje - ' . $pref . $ex->getMessage());
         }
     }
 
     public function estructuraMensajeUno($cliente, $mensaje, $nro, $categoria){
         $m = explode(":", $mensaje);
-        $sms = $m[0]. trim(utf8_encode($cliente->nom )). ' '. trim(utf8_encode($cliente->ape)).$m[1]  ;
+        $sms = $m[0]. trim(($cliente->nom )). ' '. trim(($cliente->ape)).$m[1]  ;
 
         if($categoria == 2) { //chatbot
             $bot = explode("NROCLI", $sms);
@@ -303,15 +303,15 @@ class EnviarMensajes extends Command
     }
 
     public function verificarListaNegra($nro, $ci){
-        
+
         $listaNegra = ListaNegra::where('tel', $nro)
         ->where(function ($q) use ($ci) {
-            $q->orWhere('cedula', $ci); 
-            $q->orWhere('cedula', '0'); 
+            $q->orWhere('cedula', $ci);
+            $q->orWhere('cedula', '0');
         })
         ->where('sms', true)->first();
 
-        // $listaNegra = DB::Select("SELECT * from lista_negra 
+        // $listaNegra = DB::Select("SELECT * from lista_negra
         // where tel = (:a) and (cedula = (:b) or cedula = '0')",
         // ['a'=> $nro,'b' => $ci]);
 
