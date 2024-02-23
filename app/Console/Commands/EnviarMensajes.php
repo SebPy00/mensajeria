@@ -222,7 +222,7 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensajeOriginal){
-        $mensaje = urlencode($mensajeOriginal)
+        $mensaje = urlencode($mensajeOriginal);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
         if(!empty($listaNegra)){
