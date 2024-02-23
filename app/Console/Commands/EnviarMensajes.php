@@ -164,13 +164,13 @@ class EnviarMensajes extends Command
 		            		sleep(30);
 		            	} */
 		                if($contador < 100){
-		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, ($lote->mensaje));
 		                    $contador +=1;
 		                }else{
 		                    sleep(30);
 		                    $estado = $this->verificarEstadoLote($lote->id);
 		                    if(empty($estado)){
-		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, ($lote->mensaje));
 		                        $contador = 1;
 		                    }else{
 		                        break;
@@ -221,8 +221,8 @@ class EnviarMensajes extends Command
         return $estado;
     }
 
-    public function procesar($d, $area, $tipo, $categoria, $mensajeOriginal){
-        $mensaje = urlencode($mensajeOriginal);
+    public function procesar($d, $area, $tipo, $categoria, $mensaje){
+        $URLmensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
         if(!empty($listaNegra)){
@@ -234,10 +234,10 @@ class EnviarMensajes extends Command
                 if(empty($cliente)){
                     return;
                 }
-                if($tipo == 2) $url = $this->estructuraMensajeUno($cliente, $mensaje, $nro, $categoria);
-                if($tipo == 1) $url = $this->estructuraMensajeDos($mensaje, $nro, $categoria, $cliente);
+                if($tipo == 2) $url = $this->estructuraMensajeUno($cliente, $URLmensaje, $nro, $categoria);
+                if($tipo == 1) $url = $this->estructuraMensajeDos($URLmensaje, $nro, $categoria, $cliente);
             }else{
-                $url = $this->estructuraMensajeDos($mensaje, $nro, $categoria, '');
+                $url = $this->estructuraMensajeDos($URLmensaje, $nro, $categoria, '');
             }
             $this->enviarMensaje($url, $d);
         }
