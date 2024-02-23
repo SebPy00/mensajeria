@@ -164,13 +164,13 @@ class EnviarMensajes extends Command
 		            		sleep(30);
 		            	} */
 		                if($contador < 100){
-		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, ($lote->mensaje));
+		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
 		                    $contador +=1;
 		                }else{
 		                    sleep(30);
 		                    $estado = $this->verificarEstadoLote($lote->id);
 		                    if(empty($estado)){
-		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, ($lote->mensaje));
+		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
 		                        $contador = 1;
 		                    }else{
 		                        break;
