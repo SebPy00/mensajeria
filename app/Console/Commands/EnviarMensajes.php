@@ -158,19 +158,14 @@ class EnviarMensajes extends Command
 			try{
 		            $horaActual= Carbon::now()->toTimeString();
 		            if ($horaActual >= $desde && $horaActual <= $hasta) {
-		             	/*$contador2 +=1;
-		            	if ($contador2 == 100){
-		            		$contador2=1;
-		            		sleep(30);
-		            	} */
 		                if($contador < 100){
-		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
+		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
 		                    $contador +=1;
 		                }else{
 		                    sleep(30);
 		                    $estado = $this->verificarEstadoLote($lote->id);
 		                    if(empty($estado)){
-		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
+		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
 		                        $contador = 1;
 		                    }else{
 		                        break;
