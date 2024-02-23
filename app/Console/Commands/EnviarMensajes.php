@@ -139,7 +139,7 @@ class EnviarMensajes extends Command
             ->where('enviado', 2)->where('intentos', '<', 1)->orderBy('id', 'desc')->get();
 
             if($detalle){
-                log:info('Inicia recorrido para envio de mensajes');
+                log::info('Inicia recorrido para envio de mensajes');
 
                 //VERIFICACION DE HORARIO
 
