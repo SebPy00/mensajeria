@@ -159,13 +159,13 @@ class EnviarMensajes extends Command
 		            $horaActual= Carbon::now()->toTimeString();
 		            if ($horaActual >= $desde && $horaActual <= $hasta) {
 		                if($contador < 100){
-		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
 		                    $contador +=1;
 		                }else{
 		                    sleep(30);
 		                    $estado = $this->verificarEstadoLote($lote->id);
 		                    if(empty($estado)){
-		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, utf8_decode($lote->mensaje));
+		                        $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
 		                        $contador = 1;
 		                    }else{
 		                        break;
@@ -217,6 +217,7 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
+        log::info('Procesar( '.$d->cli.' )');
         $URLmensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
