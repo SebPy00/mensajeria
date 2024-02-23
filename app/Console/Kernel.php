@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
                 }
             }
         }
-
+        
         //MENSAJERIA INTERNA
 	    //CHATBOT Y AUTOGESTOR
        	 $schedule->command('enviar:gw')->everyTwoHours();

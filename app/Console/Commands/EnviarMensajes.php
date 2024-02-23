@@ -245,7 +245,7 @@ class EnviarMensajes extends Command
     public function enviarMensaje($url, $d){
         $client = new Client();
         try {
-            //log::info($url);
+            log::info($url);
             $response = $client->post($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {
