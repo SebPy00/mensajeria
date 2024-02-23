@@ -136,7 +136,7 @@ class EnviarMensajes extends Command
     public function procesarLoteMensajes($lote){
         try{
             $detalle = EnvioMensajesDetalle::where('idenviomensaje', $lote->id)
-            ->where('enviado', 2)->where('intentos', '<', 2)->orderBy('id', 'desc')->get();
+            ->where('enviado', 2)->where('intentos', '<', 1)->orderBy('id', 'desc')->get();
 
             if($detalle){
                 log:info('Inicia recorrido para envio de mensajes');
