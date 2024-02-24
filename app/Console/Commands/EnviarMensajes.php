@@ -157,7 +157,7 @@ class EnviarMensajes extends Command
                 foreach ($detalle as $d) {
 			try{
 		            $horaActual= Carbon::now()->toTimeString();
-                    log::info($d);
+                    log::info('ID '.$d. ' mensaje '. $lote->mensaje );
 		            if ($horaActual >= $desde && $horaActual <= $hasta) {
 		                if($contador < 100){
 		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
@@ -179,7 +179,8 @@ class EnviarMensajes extends Command
                     }
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
-			    continue;
+                sleep(30);
+                //continue;
 			}
                 }
                $this->verificarEnvioMensajes($lote);
@@ -217,7 +218,6 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
-        log::info('Procesar(Nombre: '.$d->cli.' Numero: '.$d->nro.' )');
         $URLmensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
