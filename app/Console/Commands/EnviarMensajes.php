@@ -180,6 +180,8 @@ class EnviarMensajes extends Command
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
                 //sleep(30);
+                $d->intentos += 1; //agregamos cantidad de intentos
+                $d->save();
                 continue;
 			}
                 }
