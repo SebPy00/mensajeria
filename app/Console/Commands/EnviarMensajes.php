@@ -157,6 +157,7 @@ class EnviarMensajes extends Command
                 foreach ($detalle as $d) {
 			try{
 		            $horaActual= Carbon::now()->toTimeString();
+                    log::info($d);
 		            if ($horaActual >= $desde && $horaActual <= $hasta) {
 		                if($contador < 100){
 		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
@@ -242,7 +243,6 @@ class EnviarMensajes extends Command
     public function enviarMensaje($url, $d){
         $client = new Client();
         try {
-            log::info($url);
             $response = $client->post($url);
             $res = json_decode($response->getBody());
             if (!empty($res)) {
