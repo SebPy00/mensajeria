@@ -179,8 +179,8 @@ class EnviarMensajes extends Command
                     }
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
-                sleep(30);
-                //continue;
+                //sleep(30);
+                continue;
 			}
                 }
                $this->verificarEnvioMensajes($lote);
