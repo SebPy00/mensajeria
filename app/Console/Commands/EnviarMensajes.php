@@ -176,12 +176,10 @@ class EnviarMensajes extends Command
 		                log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
 		                $lote->idestado = 4;
 		                $lote->save();
-		                break;
-		            }
+                    }
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
 			    sleep(30);
-                break;
 			}
                 }
                $this->verificarEnvioMensajes($lote);
@@ -219,7 +217,7 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
-        log::info('Procesar( '.$d->cli.' )');
+        log::info('Procesar( '.$d->cli.' '.$d->nro.' )');
         $URLmensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
