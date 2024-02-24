@@ -217,7 +217,7 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
-        log::info('Procesar( '.$d->cli.' '.$d->nro.' )');
+        log::info('Procesar(Nombre: '.$d->cli.' Numero: '.$d->nro.' )');
         $URLmensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
