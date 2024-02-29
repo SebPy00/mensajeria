@@ -139,10 +139,14 @@ class EnviarMensajes extends Command
             ->where('enviado', 2)->where('intentos', '<', 1)->orderBy('id', 'desc')->get();
 
             if($detalle){
-                log::info('Inicia recorrido para envio de mensajes');
+                log::info('Inicia recorrido para envio de mensajes para el lote: ' . $lote->id);
+                log::info('Mensaje: '. $lote->mensaje );
+                log::info('Tipo: '. $lote->tipo. ' Categoria: ' . $lote->idcategoriamensaje );
+                log::info('AreaMensaje: '. $lote->idareamensaje );
 
                 //VERIFICACION DE HORARIO
-
+                $enviados = 0;
+                $noenviados = 0;
                 $date = Carbon::now();
                 $desde = '08:00:00';
                 $hasta = '18:00:00';
@@ -157,7 +161,6 @@ class EnviarMensajes extends Command
                 foreach ($detalle as $d) {
 			try{
 		            $horaActual= Carbon::now()->toTimeString();
-                    log::info('ID '.$d->id. ' mensaje '. $lote->mensaje );
 		            if ($horaActual >= $desde && $horaActual <= $hasta) {
 		                if($contador < 100){
 		                    $this->procesar($d,  $lote->idareamensaje, $lote->tipo, $lote->idcategoriamensaje, $lote->mensaje);
@@ -172,6 +175,7 @@ class EnviarMensajes extends Command
 		                        break;
 		                    }
 		                }
+                        $enviados += 1;
 		            }else{
 		                log::info('No se puede realizar envío fuera de horario. Cambiando estado de la cabecera: DETENIDO');
 		                $lote->idestado = 4;
@@ -180,11 +184,14 @@ class EnviarMensajes extends Command
 		 	}catch (Exception $ex) {
 			    log::info('ERROR 1.5: foreach Peticion:  - '. $ex->getMessage());
                 //sleep(30);
+                $noenviados += 1;
                 $d->intentos += 1; //agregamos cantidad de intentos
                 $d->save();
                 continue;
 			}
                 }
+                log::info('Fin recorrido envio de mensajes del lote: ' . $lote->id . ' ');
+                log::info('Enviados: '. $enviados . ' ; No enviados: ' . $noenviados);
                $this->verificarEnvioMensajes($lote);
             }
         }catch (Exception $ex) {
@@ -220,7 +227,7 @@ class EnviarMensajes extends Command
     }
 
     public function procesar($d, $area, $tipo, $categoria, $mensaje){
-        $URLmensaje = urlencode($mensaje);
+        //$mensaje = urlencode($mensaje);
         $nro = '0'. $d->nrotelefono;
         $listaNegra = $this->verificarListaNegra($nro, $d->ci);
         if(!empty($listaNegra)){
@@ -232,10 +239,10 @@ class EnviarMensajes extends Command
                 if(empty($cliente)){
                     return;
                 }
-                if($tipo == 2) $url = $this->estructuraMensajeUno($cliente, $URLmensaje, $nro, $categoria);
-                if($tipo == 1) $url = $this->estructuraMensajeDos($URLmensaje, $nro, $categoria, $cliente);
+                if($tipo == 2) $url = $this->estructuraMensajeUno($cliente, $mensaje, $nro, $categoria);
+                if($tipo == 1) $url = $this->estructuraMensajeDos($mensaje, $nro, $categoria, $cliente);
             }else{
-                $url = $this->estructuraMensajeDos($URLmensaje, $nro, $categoria, '');
+                $url = $this->estructuraMensajeDos($mensaje, $nro, $categoria, '');
             }
             $this->enviarMensaje($url, $d);
         }
@@ -275,28 +282,26 @@ class EnviarMensajes extends Command
         $m = explode(":", $mensaje);
         $sms = $m[0]. trim(($cliente->nom )). ' '. trim(($cliente->ape)).$m[1]  ;
 
-        if($categoria == 2) { //chatbot
+        if($categoria == 2 && strpos($sms, 'NROCLI') !== false) { //chatbot
             $bot = explode("NROCLI", $sms);
-            $mje = $bot[0].$cliente->cli.$bot[1];
-            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-            '&message='.$mje .'&msisdn='.$nro;
-        }else{
-            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-            '&message='.$sms .'&msisdn='.$nro;
+            $sms = $bot[0].$cliente->cli.$bot[1];
         }
+
+        $mensaje = urlencode($sms);
+        $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+        '&message='.$mensaje .'&msisdn='.$nro;
+
         return $url;
     }
 
     public function estructuraMensajeDos( $mensaje, $nro, $categoria, $cliente){
         if($categoria == 2) { //chatbot
             $bot = explode("NROCLI", $mensaje);
-            $mje = $bot[0].$cliente->cli.$bot[1];
-            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-            '&message='.$mje .'&msisdn='.$nro;
-        }else{
-            $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
-            '&message='.$mensaje .'&msisdn='.$nro;
+            $mensaje = $bot[0].$cliente->cli.$bot[1];
         }
+        $url = env('DIR_WEBSERVICE').'?key='. env('CLAVE_WEBSERVICE') .
+        '&message='.$mensaje .'&msisdn='.$nro;
+
         return $url;
     }
 
